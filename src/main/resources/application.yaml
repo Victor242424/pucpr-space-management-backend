@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: space-management
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+
+# Configuración común a todos los entornos
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
