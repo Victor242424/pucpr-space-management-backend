@@ -18,6 +18,7 @@ public interface AccessRecordRepository extends JpaRepository<AccessRecord, Long
     List<AccessRecord> findByStudent(Student student);
     List<AccessRecord> findBySpace(Space space);
     List<AccessRecord> findByStatus(AccessStatus status);
+    boolean existsBySpaceId(Long spaceId);
 
     @Query("SELECT ar FROM AccessRecord ar WHERE ar.student = :student AND ar.status = :status")
     List<AccessRecord> findByStudentAndStatus(@Param("student") Student student,
