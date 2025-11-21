@@ -1,13 +1,16 @@
 package dev.victor_rivas.space_management.service;
 
 import dev.victor_rivas.space_management.enums.Role;
+import dev.victor_rivas.space_management.enums.SpaceStatus;
 import dev.victor_rivas.space_management.enums.StudentStatus;
 import dev.victor_rivas.space_management.exception.BusinessException;
 import dev.victor_rivas.space_management.exception.ResourceNotFoundException;
 import dev.victor_rivas.space_management.model.dto.CreateStudentRequest;
 import dev.victor_rivas.space_management.model.dto.StudentDTO;
+import dev.victor_rivas.space_management.model.entity.Space;
 import dev.victor_rivas.space_management.model.entity.Student;
 import dev.victor_rivas.space_management.model.entity.User;
+import dev.victor_rivas.space_management.repository.AccessRecordRepository;
 import dev.victor_rivas.space_management.repository.StudentRepository;
 import dev.victor_rivas.space_management.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AccessRecordRepository accessRecordRepository;
 
     @Transactional
     public StudentDTO createStudent(CreateStudentRequest request) {
@@ -99,11 +103,20 @@ public class StudentService {
 
     @Transactional
     public void deleteStudent(Long id) {
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
+        if (accessRecordRepository.existsByStudentId(id)){
+            Student student = studentRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
 
-        student.setStatus(StudentStatus.INACTIVE);
-        studentRepository.save(student);
+            student.setStatus(StudentStatus.INACTIVE);
+            studentRepository.save(student);
+        } else {
+            userRepository.deleteByStudentId(id);
+            if (!userRepository.existsByStudentId(id)){
+                studentRepository.deleteById(id);
+            } else {
+                throw new ResourceNotFoundException("User not found with student id: " + id);
+            }
+        }
     }
 
     private StudentDTO convertToDTO(Student student) {
