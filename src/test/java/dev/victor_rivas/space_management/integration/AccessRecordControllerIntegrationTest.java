@@ -222,7 +222,40 @@ class AccessRecordControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Student already has an active access to this space"));
+                .andExpect(jsonPath("$.message").value("Student already has an active access in a space"));
+    }
+
+    @Test
+    void registerEntry_WithStudentActiveInAnotherSpace_ReturnsBadRequest() throws Exception {
+        Space anotherSpace = Space.builder()
+                .code("CLASS-001")
+                .name("Classroom 101")
+                .type(SpaceType.CLASSROOM)
+                .capacity(40)
+                .building("Building B")
+                .floor("2nd Floor")
+                .status(SpaceStatus.AVAILABLE)
+                .build();
+        anotherSpace = spaceRepository.save(anotherSpace);
+
+        AccessRecord activeAccess = AccessRecord.builder()
+                .student(testStudent)
+                .space(anotherSpace)
+                .entryTime(LocalDateTime.now())
+                .status(AccessStatus.ACTIVE)
+                .build();
+        accessRecordRepository.save(activeAccess);
+
+        EntryRequest request = new EntryRequest();
+        request.setStudentId(testStudent.getId());
+        request.setSpaceId(testSpace.getId());
+
+        mockMvc.perform(post("/api/access/entry")
+                        .header("Authorization", "Bearer " + studentToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Student already has an active access in a space"));
     }
 
     @Test
