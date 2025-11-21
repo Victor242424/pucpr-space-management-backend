@@ -46,11 +46,12 @@ public class AccessRecordService {
             throw new BusinessException("Space is not available");
         }
 
-        // Check if student already has an active access to this space
-        accessRecordRepository.findActiveAccessByStudentAndSpace(student, space)
-                .ifPresent(ar -> {
-                    throw new BusinessException("Student already has an active access to this space");
-                });
+        List<AccessRecord> studentActiveAccesses = accessRecordRepository
+                .findByStudentAndStatus(student, AccessStatus.ACTIVE);
+
+        if (!studentActiveAccesses.isEmpty()) {
+            throw new BusinessException("Student already has an active access in a space");
+        }
 
         // Check space capacity
         Long currentOccupancy = accessRecordRepository.countActiveAccessBySpace(space);
