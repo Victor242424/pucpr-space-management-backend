@@ -9,11 +9,8 @@ import dev.victor_rivas.space_management.repository.SpaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,17 +47,11 @@ public class ReportService {
         List<AccessRecord> todayRecords = accessRecordRepository
                 .findBySpaceAndEntryTimeBetween(space, startOfToday, endOfToday);
 
-        LocalDateTime startOfWeek = LocalDateTime.now()
-                .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
-                .with(LocalTime.MIN);
-
+        LocalDateTime startOfWeek = LocalDateTime.now().minusDays(7);
         List<AccessRecord> weekRecords = accessRecordRepository
                 .findBySpaceAndEntryTimeBetween(space, startOfWeek, LocalDateTime.now());
 
-        LocalDateTime startOfMonth = LocalDateTime.now()
-                .withDayOfMonth(1)
-                .with(LocalTime.MIN);
-
+        LocalDateTime startOfMonth = LocalDateTime.now().minusDays(30);
         List<AccessRecord> monthRecords = accessRecordRepository
                 .findBySpaceAndEntryTimeBetween(space, startOfMonth, LocalDateTime.now());
 
