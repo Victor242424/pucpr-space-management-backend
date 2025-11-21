@@ -103,10 +103,9 @@ public class StudentService {
 
     @Transactional
     public void deleteStudent(Long id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
         if (accessRecordRepository.existsByStudentId(id)){
-            Student student = studentRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
-
             student.setStatus(StudentStatus.INACTIVE);
             studentRepository.save(student);
         } else {
