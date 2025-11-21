@@ -83,10 +83,10 @@ public class SpaceService {
 
     @Transactional
     public void deleteSpace(Long id) {
+        Space space = spaceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Space not found with id: " + id));
 
         if (accessRecordRepository.existsBySpaceId(id)){
-            Space space = spaceRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Space not found with id: " + id));
             space.setStatus(SpaceStatus.UNAVAILABLE);
             spaceRepository.save(space);
         } else {
