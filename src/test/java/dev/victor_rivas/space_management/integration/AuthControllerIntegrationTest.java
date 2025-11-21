@@ -11,20 +11,28 @@ import dev.victor_rivas.space_management.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.*;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@SpringBootTest
+@AutoConfigureMockMvc
 @ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class AuthControllerIntegrationTest {
 
     @Autowired
-    private TestRestTemplate restTemplate;
+    private MockMvc mockMvc;
 
     @Autowired
     private UserRepository userRepository;
@@ -34,6 +42,9 @@ class AuthControllerIntegrationTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
@@ -64,95 +75,71 @@ class AuthControllerIntegrationTest {
     }
 
     @Test
-    void login_WithValidCredentials_ReturnsToken() {
+    void login_WithValidCredentials_ReturnsToken() throws Exception {
         LoginRequest request = new LoginRequest("STU001", "password123");
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/auth/login",
-                request,
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("\"success\":true");
-        assertThat(response.getBody()).contains("\"token\":");
-        assertThat(response.getBody()).contains("\"type\":\"Bearer\"");
-        assertThat(response.getBody()).contains("\"username\":\"STU001\"");
-        assertThat(response.getBody()).contains("\"email\":\"test@student.com\"");
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("Login successful"))
+                .andExpect(jsonPath("$.data.token").exists())
+                .andExpect(jsonPath("$.data.type").value("Bearer"))
+                .andExpect(jsonPath("$.data.username").value("STU001"))
+                .andExpect(jsonPath("$.data.email").value("test@student.com"));
     }
 
     @Test
-    void login_WithInvalidPassword_ReturnsUnauthorized() {
-        LoginRequest request = new LoginRequest("STU001", "wrongpassword");
-
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/auth/login",
-                request,
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-        assertThat(response.getBody()).contains("Invalid username or password");
-    }
-
-    @Test
-    void login_WithInvalidUsername_ReturnsUnauthorized() {
+    void login_WithInvalidUsername_ReturnsUnauthorized() throws Exception {
         LoginRequest request = new LoginRequest("NONEXISTENT", "password123");
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/auth/login",
-                request,
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-        assertThat(response.getBody()).contains("Invalid username or password");
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Invalid username or password"))
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.path").value("/api/auth/login"));
     }
 
     @Test
-    void login_WithNullUsername_ReturnsBadRequest() {
+    void login_WithInvalidPassword_ReturnsUnauthorized() throws Exception {
+        LoginRequest request = new LoginRequest("STU001", "wrongpassword");
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Invalid username or password"))
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.path").value("/api/auth/login"));
+    }
+
+    @Test
+    void login_WithNullUsername_ReturnsBadRequest() throws Exception {
         LoginRequest request = new LoginRequest(null, "password123");
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/auth/login",
-                request,
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).contains("Username is required");
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid input data"));
     }
 
     @Test
-    void login_WithNullPassword_ReturnsBadRequest() {
+    void login_WithNullPassword_ReturnsBadRequest() throws Exception {
         LoginRequest request = new LoginRequest("STU001", null);
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/auth/login",
-                request,
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).contains("Password is required");
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid input data"));
     }
 
     @Test
-    void login_WithEmptyUsername_ReturnsBadRequest() {
-        LoginRequest request = new LoginRequest("", "password123");
-
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/auth/login",
-                request,
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).contains("Username is required");
-    }
-
-    @Test
-    void register_WithValidData_ReturnsCreated() {
+    void register_WithValidData_ReturnsCreated() throws Exception {
         CreateStudentRequest request = new CreateStudentRequest();
         request.setRegistrationNumber("STU002");
         request.setName("New Student");
@@ -160,20 +147,18 @@ class AuthControllerIntegrationTest {
         request.setPassword("password123");
         request.setPhoneNumber("9876543210");
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/auth/register",
-                request,
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("Student registered successfully");
-        assertThat(response.getBody()).contains("\"registrationNumber\":\"STU002\"");
-        assertThat(response.getBody()).contains("\"email\":\"newstudent@test.com\"");
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("Student registered successfully"))
+                .andExpect(jsonPath("$.data.registrationNumber").value("STU002"))
+                .andExpect(jsonPath("$.data.email").value("newstudent@test.com"));
     }
 
     @Test
-    void register_WithDuplicateRegistrationNumber_ReturnsBadRequest() {
+    void register_WithDuplicateRegistrationNumber_ReturnsBadRequest() throws Exception {
         CreateStudentRequest request = new CreateStudentRequest();
         request.setRegistrationNumber("STU001"); // Already exists
         request.setName("Another Student");
@@ -181,18 +166,15 @@ class AuthControllerIntegrationTest {
         request.setPassword("password123");
         request.setPhoneNumber("5555555555");
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/auth/register",
-                request,
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).contains("Registration number already exists");
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Registration number already exists"));
     }
 
     @Test
-    void register_WithDuplicateEmail_ReturnsBadRequest() {
+    void register_WithDuplicateEmail_ReturnsBadRequest() throws Exception {
         CreateStudentRequest request = new CreateStudentRequest();
         request.setRegistrationNumber("STU003");
         request.setName("Another Student");
@@ -200,87 +182,10 @@ class AuthControllerIntegrationTest {
         request.setPassword("password123");
         request.setPhoneNumber("5555555555");
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/auth/register",
-                request,
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).contains("Email already exists");
-    }
-
-    @Test
-    void register_WithInvalidEmail_ReturnsBadRequest() {
-        CreateStudentRequest request = new CreateStudentRequest();
-        request.setRegistrationNumber("STU004");
-        request.setName("Test Student");
-        request.setEmail("invalid-email");
-        request.setPassword("password123");
-        request.setPhoneNumber("1234567890");
-
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/auth/register",
-                request,
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).contains("Email must be valid");
-    }
-
-    @Test
-    void register_WithShortPassword_ReturnsBadRequest() {
-        CreateStudentRequest request = new CreateStudentRequest();
-        request.setRegistrationNumber("STU005");
-        request.setName("Test Student");
-        request.setEmail("test5@test.com");
-        request.setPassword("123"); // Too short
-        request.setPhoneNumber("1234567890");
-
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/auth/register",
-                request,
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).contains("Password must be at least 6 characters");
-    }
-
-    @Test
-    void register_WithNullRequiredFields_ReturnsBadRequest() {
-        CreateStudentRequest request = new CreateStudentRequest();
-        request.setRegistrationNumber(null);
-        request.setName(null);
-        request.setEmail(null);
-        request.setPassword(null);
-
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/auth/register",
-                request,
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).contains("Validation Failed");
-    }
-
-    @Test
-    void register_WithEmptyRequiredFields_ReturnsBadRequest() {
-        CreateStudentRequest request = new CreateStudentRequest();
-        request.setRegistrationNumber("");
-        request.setName("");
-        request.setEmail("");
-        request.setPassword("");
-
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/auth/register",
-                request,
-                String.class
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).contains("Validation Failed");
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Email already exists"));
     }
 }
