@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/education_spaces_db
     username: postgres
-    password: ${POSTGRES_PASS_PROD}
+    password: admin
     driver-class-name: org.postgresql.Driver
 
   jpa:
