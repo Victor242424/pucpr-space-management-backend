@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/education_spaces_db
     username: postgres
-    password: admin
+    password: ${POSTGRES_PASS_PROD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -21,7 +21,7 @@ jwt:
 
 # Server Configuration
 server:
-  port: 8080
+  port: 8081
   error:
     include-message: always
     include-binding-errors: always
