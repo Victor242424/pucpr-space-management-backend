@@ -188,6 +188,8 @@ class ReportControllerIntegrationTest {
                 .build();
         accessRecordRepository.save(weekRecord2);
 
+        // Create completed access records - older than 7 days (for monthly stats)
+        // These should NOT count toward "this week" but should count toward "this month"
         AccessRecord monthRecord1 = AccessRecord.builder()
                 .student(testStudent)
                 .space(testSpace)
