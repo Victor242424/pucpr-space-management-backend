@@ -14,6 +14,7 @@ import dev.victor_rivas.space_management.model.entity.Student;
 import dev.victor_rivas.space_management.repository.AccessRecordRepository;
 import dev.victor_rivas.space_management.repository.SpaceRepository;
 import dev.victor_rivas.space_management.repository.StudentRepository;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,91 +28,102 @@ public class AccessRecordService {
     private final AccessRecordRepository accessRecordRepository;
     private final StudentRepository studentRepository;
     private final SpaceRepository spaceRepository;
+    private final MetricsService metricsService;
 
     @Transactional
+    @Timed(value = "space.entry.register", description = "Time to register an entry")
     public AccessRecordDTO registerEntry(EntryRequest request) {
-        Student student = studentRepository.findById(request.getStudentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        return metricsService.getEntryRegistrationTimer().record(() -> {
+            Student student = studentRepository.findById(request.getStudentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
-        if (student.getStatus() != StudentStatus.ACTIVE) {
-            throw new BusinessException("Student is not active");
-        }
+            if (student.getStatus() != StudentStatus.ACTIVE) {
+                throw new BusinessException("Student is not active");
+            }
 
-        Space space = spaceRepository.findById(request.getSpaceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Space not found"));
+            Space space = spaceRepository.findById(request.getSpaceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Space not found"));
 
-        if (space.getStatus() != SpaceStatus.AVAILABLE &&
-                space.getStatus() != SpaceStatus.OCCUPIED) {
-            throw new BusinessException("Space is not available");
-        }
+            if (space.getStatus() != SpaceStatus.AVAILABLE &&
+                    space.getStatus() != SpaceStatus.OCCUPIED) {
+                throw new BusinessException("Space is not available");
+            }
 
-        List<AccessRecord> studentActiveAccesses = accessRecordRepository
-                .findByStudentAndStatus(student, AccessStatus.ACTIVE);
+            List<AccessRecord> studentActiveAccesses = accessRecordRepository
+                    .findByStudentAndStatus(student, AccessStatus.ACTIVE);
 
-        if (!studentActiveAccesses.isEmpty()) {
-            throw new BusinessException("Student already has an active access in a space");
-        }
+            if (!studentActiveAccesses.isEmpty()) {
+                throw new BusinessException("Student already has an active access in a space");
+            }
 
-        // Check space capacity
-        Long currentOccupancy = accessRecordRepository.countActiveAccessBySpace(space);
-        if (currentOccupancy >= space.getCapacity()) {
-            throw new BusinessException("Space has reached maximum capacity");
-        }
+            Long currentOccupancy = accessRecordRepository.countActiveAccessBySpace(space);
+            if (currentOccupancy >= space.getCapacity()) {
+                throw new BusinessException("Space has reached maximum capacity");
+            }
 
-        AccessRecord accessRecord = AccessRecord.builder()
-                .student(student)
-                .space(space)
-                .entryTime(LocalDateTime.now())
-                .status(AccessStatus.ACTIVE)
-                .notes(request.getNotes())
-                .build();
+            AccessRecord accessRecord = AccessRecord.builder()
+                    .student(student)
+                    .space(space)
+                    .entryTime(LocalDateTime.now())
+                    .status(AccessStatus.ACTIVE)
+                    .notes(request.getNotes())
+                    .build();
 
-        accessRecord = accessRecordRepository.save(accessRecord);
+            accessRecord = accessRecordRepository.save(accessRecord);
 
-        // Update space status if needed
-        if (currentOccupancy + 1 >= space.getCapacity() || space.getStatus() == SpaceStatus.AVAILABLE) {
-            space.setStatus(SpaceStatus.OCCUPIED);
-            spaceRepository.save(space);
-        }
+            if (currentOccupancy + 1 >= space.getCapacity() || space.getStatus() == SpaceStatus.AVAILABLE) {
+                space.setStatus(SpaceStatus.OCCUPIED);
+                spaceRepository.save(space);
+            }
 
-        return convertToDTO(accessRecord);
+            // Registrar métrica
+            metricsService.recordEntry();
+
+            return convertToDTO(accessRecord);
+        });
     }
 
     @Transactional
+    @Timed(value = "space.exit.register", description = "Time to register an exit")
     public AccessRecordDTO registerExit(ExitRequest request) {
-        AccessRecord accessRecord = accessRecordRepository.findById(request.getAccessRecordId())
-                .orElseThrow(() -> new ResourceNotFoundException("Access record not found"));
+        return metricsService.getExitRegistrationTimer().record(() -> {
+            AccessRecord accessRecord = accessRecordRepository.findById(request.getAccessRecordId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Access record not found"));
 
-        if (accessRecord.getStatus() != AccessStatus.ACTIVE) {
-            throw new BusinessException("Access record is not active");
-        }
+            if (accessRecord.getStatus() != AccessStatus.ACTIVE) {
+                throw new BusinessException("Access record is not active");
+            }
 
-        accessRecord.setExitTime(LocalDateTime.now());
-        accessRecord.setStatus(AccessStatus.COMPLETED);
+            accessRecord.setExitTime(LocalDateTime.now());
+            accessRecord.setStatus(AccessStatus.COMPLETED);
 
-        if (request.getNotes() != null) {
-            accessRecord.setNotes(accessRecord.getNotes() != null ?
-                    accessRecord.getNotes() + " | " + request.getNotes() :
-                    request.getNotes());
-        }
+            if (request.getNotes() != null) {
+                accessRecord.setNotes(accessRecord.getNotes() != null ?
+                        accessRecord.getNotes() + " | " + request.getNotes() :
+                        request.getNotes());
+            }
 
-        accessRecord = accessRecordRepository.save(accessRecord);
+            accessRecord = accessRecordRepository.save(accessRecord);
 
-        // Update space status
-        Space space = accessRecord.getSpace();
-        Long currentOccupancy = accessRecordRepository.countActiveAccessBySpace(space);
+            Space space = accessRecord.getSpace();
+            Long currentOccupancy = accessRecordRepository.countActiveAccessBySpace(space);
 
-        if (currentOccupancy == 0) {
-            space.setStatus(SpaceStatus.AVAILABLE);
-        } else if (currentOccupancy < space.getCapacity()) {
-            space.setStatus(SpaceStatus.OCCUPIED);
-        }
-        spaceRepository.save(space);
+            if (currentOccupancy == 0) {
+                space.setStatus(SpaceStatus.AVAILABLE);
+            } else if (currentOccupancy < space.getCapacity()) {
+                space.setStatus(SpaceStatus.OCCUPIED);
+            }
+            spaceRepository.save(space);
 
-        return convertToDTO(accessRecord);
+            // Registrar métrica
+            metricsService.recordExit();
+
+            return convertToDTO(accessRecord);
+        });
     }
 
     @Transactional(readOnly = true)
+    @Timed(value = "access.records.get.all", description = "Time to get all access records")
     public List<AccessRecordDTO> getAllAccessRecords() {
         return accessRecordRepository.findAll().stream()
                 .map(this::convertToDTO)
@@ -119,6 +131,7 @@ public class AccessRecordService {
     }
 
     @Transactional(readOnly = true)
+    @Timed(value = "access.records.get.by.student", description = "Time to get access records by student")
     public List<AccessRecordDTO> getAccessRecordsByStudent(Long studentId) {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
@@ -129,6 +142,7 @@ public class AccessRecordService {
     }
 
     @Transactional(readOnly = true)
+    @Timed(value = "access.records.get.by.space", description = "Time to get access records by space")
     public List<AccessRecordDTO> getAccessRecordsBySpace(Long spaceId) {
         Space space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Space not found"));
@@ -139,6 +153,7 @@ public class AccessRecordService {
     }
 
     @Transactional(readOnly = true)
+    @Timed(value = "access.records.get.active", description = "Time to get active access records")
     public List<AccessRecordDTO> getActiveAccessRecords() {
         return accessRecordRepository.findByStatus(AccessStatus.ACTIVE).stream()
                 .map(this::convertToDTO)
