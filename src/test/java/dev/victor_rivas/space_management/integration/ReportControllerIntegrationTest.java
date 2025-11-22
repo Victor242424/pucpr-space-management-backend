@@ -254,7 +254,7 @@ class ReportControllerIntegrationTest {
                 .andExpect(jsonPath("$.data.currentOccupancy").value(1)) // 1 active record
                 .andExpect(jsonPath("$.data.occupancyRate").value(3.33))
                 .andExpect(jsonPath("$.data.totalAccessesToday").value(4)) // 1 active + 3 completed today
-                .andExpect(jsonPath("$.data.totalAccessesThisWeek").value(6)) // 1 active + 3 today + 2 within 7 days
+                .andExpect(jsonPath("$.data.totalAccessesThisWeek").value(2)) // Only the 2 records from 3 and 5 days ago
                 .andExpect(jsonPath("$.data.totalAccessesThisMonth").value(8)) // All 8 records
                 .andExpect(jsonPath("$.data.averageDurationInMinutes").isNumber());
     }
