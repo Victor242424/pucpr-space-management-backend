@@ -8,6 +8,7 @@ import dev.victor_rivas.space_management.model.dto.SpaceDTO;
 import dev.victor_rivas.space_management.model.entity.Space;
 import dev.victor_rivas.space_management.model.entity.Student;
 import dev.victor_rivas.space_management.model.entity.User;
+import dev.victor_rivas.space_management.repository.AccessRecordRepository;
 import dev.victor_rivas.space_management.repository.SpaceRepository;
 import dev.victor_rivas.space_management.repository.StudentRepository;
 import dev.victor_rivas.space_management.repository.UserRepository;
@@ -49,6 +50,9 @@ class SpaceControllerIntegrationTest {
     private StudentRepository studentRepository;
 
     @Autowired
+    private AccessRecordRepository accessRecordRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -63,6 +67,7 @@ class SpaceControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        accessRecordRepository.deleteAll(); // or whatever your access record repository is called
         spaceRepository.deleteAll();
         userRepository.deleteAll();
         studentRepository.deleteAll();

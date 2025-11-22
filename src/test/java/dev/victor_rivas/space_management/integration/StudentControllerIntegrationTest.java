@@ -5,6 +5,7 @@ import dev.victor_rivas.space_management.enums.StudentStatus;
 import dev.victor_rivas.space_management.model.dto.StudentDTO;
 import dev.victor_rivas.space_management.model.entity.Student;
 import dev.victor_rivas.space_management.model.entity.User;
+import dev.victor_rivas.space_management.repository.AccessRecordRepository;
 import dev.victor_rivas.space_management.repository.StudentRepository;
 import dev.victor_rivas.space_management.repository.UserRepository;
 import dev.victor_rivas.space_management.security.JwtTokenProvider;
@@ -42,6 +43,9 @@ class StudentControllerIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
+    private AccessRecordRepository accessRecordRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -56,6 +60,7 @@ class StudentControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        accessRecordRepository.deleteAll();
         userRepository.deleteAll();
         studentRepository.deleteAll();
 
@@ -172,7 +177,7 @@ class StudentControllerIntegrationTest {
                 .password(passwordEncoder.encode("password123"))
                 .status(StudentStatus.ACTIVE)
                 .build();
-        anotherStudent = studentRepository.save(anotherStudent);
+        studentRepository.save(anotherStudent);
 
         // Try to update with duplicate email
         StudentDTO updateData = StudentDTO.builder()

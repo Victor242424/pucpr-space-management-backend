@@ -6,6 +6,7 @@ import dev.victor_rivas.space_management.model.dto.CreateStudentRequest;
 import dev.victor_rivas.space_management.model.dto.LoginRequest;
 import dev.victor_rivas.space_management.model.entity.Student;
 import dev.victor_rivas.space_management.model.entity.User;
+import dev.victor_rivas.space_management.repository.AccessRecordRepository;
 import dev.victor_rivas.space_management.repository.StudentRepository;
 import dev.victor_rivas.space_management.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -41,6 +41,9 @@ class AuthControllerIntegrationTest {
     private StudentRepository studentRepository;
 
     @Autowired
+    private AccessRecordRepository accessRecordRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -48,6 +51,7 @@ class AuthControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        accessRecordRepository.deleteAll();
         userRepository.deleteAll();
         studentRepository.deleteAll();
 
