@@ -22,7 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -122,53 +121,65 @@ class ReportControllerIntegrationTest {
     }
 
     private void createAccessRecordsForTesting() {
-        // Use LocalDate.now() to ensure we're in the correct day
-        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+        LocalDateTime now = LocalDateTime.now();
+        now.minusDays(7);
 
-        // Create active access record - today
+        // Create active access record - today (within last 7 days)
         AccessRecord activeAccess = AccessRecord.builder()
                 .student(testStudent)
                 .space(testSpace)
-                .entryTime(todayStart.plusHours(10)) // 10 AM today
+                .entryTime(now.minusHours(1))
                 .status(AccessStatus.ACTIVE)
                 .build();
         accessRecordRepository.save(activeAccess);
 
-        // Create completed access records - today
+        // Create completed access records - today (within last 7 days)
         for (int i = 0; i < 3; i++) {
             AccessRecord completedToday = AccessRecord.builder()
                     .student(testStudent)
                     .space(testSpace)
-                    .entryTime(todayStart.plusHours(8 + i)) // 8 AM, 9 AM, 10 AM
-                    .exitTime(todayStart.plusHours(9 + i))  // 9 AM, 10 AM, 11 AM
+                    .entryTime(now.minusHours(3 + i))
+                    .exitTime(now.minusHours(2 + i))
                     .status(AccessStatus.COMPLETED)
                     .build();
             accessRecordRepository.save(completedToday);
         }
 
-        // Create completed access records - this week (but not today)
-        for (int i = 2; i <= 3; i++) {
-            AccessRecord completedWeek = AccessRecord.builder()
-                    .student(testStudent)
-                    .space(testSpace)
-                    .entryTime(todayStart.minusDays(i).plusHours(10))
-                    .exitTime(todayStart.minusDays(i).plusHours(11))
-                    .status(AccessStatus.COMPLETED)
-                    .build();
-            accessRecordRepository.save(completedWeek);
-        }
+        AccessRecord weekRecord1 = AccessRecord.builder()
+                .student(testStudent)
+                .space(testSpace)
+                .entryTime(now.minusDays(3).minusHours(2))
+                .exitTime(now.minusDays(3).minusHours(1))
+                .status(AccessStatus.COMPLETED)
+                .build();
+        accessRecordRepository.save(weekRecord1);
 
-        // Create completed access records - this month (but not this week)
-        for (int i = 10; i <= 11; i++) {
-            AccessRecord completedMonth = AccessRecord.builder()
-                    .student(testStudent)
-                    .space(testSpace)
-                    .entryTime(todayStart.minusDays(i).plusHours(14))
-                    .exitTime(todayStart.minusDays(i).plusHours(16))
-                    .status(AccessStatus.COMPLETED)
-                    .build();
-            accessRecordRepository.save(completedMonth);
-        }
+        AccessRecord weekRecord2 = AccessRecord.builder()
+                .student(testStudent)
+                .space(testSpace)
+                .entryTime(now.minusDays(5).minusHours(2))
+                .exitTime(now.minusDays(5).minusHours(1))
+                .status(AccessStatus.COMPLETED)
+                .build();
+        accessRecordRepository.save(weekRecord2);
+
+        AccessRecord monthRecord1 = AccessRecord.builder()
+                .student(testStudent)
+                .space(testSpace)
+                .entryTime(now.minusDays(10).minusHours(3))
+                .exitTime(now.minusDays(10).minusHours(2))
+                .status(AccessStatus.COMPLETED)
+                .build();
+        accessRecordRepository.save(monthRecord1);
+
+        AccessRecord monthRecord2 = AccessRecord.builder()
+                .student(testStudent)
+                .space(testSpace)
+                .entryTime(now.minusDays(15).minusHours(3))
+                .exitTime(now.minusDays(15).minusHours(2))
+                .status(AccessStatus.COMPLETED)
+                .build();
+        accessRecordRepository.save(monthRecord2);
     }
 
     @Test
@@ -218,8 +229,8 @@ class ReportControllerIntegrationTest {
                 .andExpect(jsonPath("$.data.currentOccupancy").isNumber())
                 .andExpect(jsonPath("$.data.occupancyRate").isNumber())
                 .andExpect(jsonPath("$.data.totalAccessesToday").value(4)) // 1 active + 3 completed today
-                .andExpect(jsonPath("$.data.totalAccessesThisWeek").value(6)) // 1 active + 3 today + 2 this week
-                .andExpect(jsonPath("$.data.totalAccessesThisMonth").value(8)) // All records
+                .andExpect(jsonPath("$.data.totalAccessesThisWeek").value(6)) // All within last 7 days: 1 active + 3 today + 2 week
+                .andExpect(jsonPath("$.data.totalAccessesThisMonth").value(8)) // All records within 30 days
                 .andExpect(jsonPath("$.data.averageDurationInMinutes").isNumber());
     }
 
