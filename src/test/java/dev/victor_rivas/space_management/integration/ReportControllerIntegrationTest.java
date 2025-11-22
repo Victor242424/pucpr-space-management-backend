@@ -22,8 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.TimeZone;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -122,11 +122,14 @@ class ReportControllerIntegrationTest {
     }
 
     private void createAccessRecordsForTesting() {
-        // Create active access record
+        // Use LocalDate.now() to ensure we're in the correct day
+        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+
+        // Create active access record - today
         AccessRecord activeAccess = AccessRecord.builder()
                 .student(testStudent)
                 .space(testSpace)
-                .entryTime(LocalDateTime.now().minusMinutes(30))
+                .entryTime(todayStart.plusHours(10)) // 10 AM today
                 .status(AccessStatus.ACTIVE)
                 .build();
         accessRecordRepository.save(activeAccess);
@@ -136,32 +139,32 @@ class ReportControllerIntegrationTest {
             AccessRecord completedToday = AccessRecord.builder()
                     .student(testStudent)
                     .space(testSpace)
-                    .entryTime(LocalDateTime.now().minusHours(i + 2))
-                    .exitTime(LocalDateTime.now().minusHours(i + 1))
+                    .entryTime(todayStart.plusHours(8 + i)) // 8 AM, 9 AM, 10 AM
+                    .exitTime(todayStart.plusHours(9 + i))  // 9 AM, 10 AM, 11 AM
                     .status(AccessStatus.COMPLETED)
                     .build();
             accessRecordRepository.save(completedToday);
         }
 
-        // Create completed access records - this week
-        for (int i = 0; i < 2; i++) {
+        // Create completed access records - this week (but not today)
+        for (int i = 2; i <= 3; i++) {
             AccessRecord completedWeek = AccessRecord.builder()
                     .student(testStudent)
                     .space(testSpace)
-                    .entryTime(LocalDateTime.now().minusDays(i + 2).minusHours(2))
-                    .exitTime(LocalDateTime.now().minusDays(i + 2).minusHours(1))
+                    .entryTime(todayStart.minusDays(i).plusHours(10))
+                    .exitTime(todayStart.minusDays(i).plusHours(11))
                     .status(AccessStatus.COMPLETED)
                     .build();
             accessRecordRepository.save(completedWeek);
         }
 
-        // Create completed access records - this month
-        for (int i = 0; i < 2; i++) {
+        // Create completed access records - this month (but not this week)
+        for (int i = 10; i <= 11; i++) {
             AccessRecord completedMonth = AccessRecord.builder()
                     .student(testStudent)
                     .space(testSpace)
-                    .entryTime(LocalDateTime.now().minusDays(i + 10).minusHours(3))
-                    .exitTime(LocalDateTime.now().minusDays(i + 10).minusHours(2))
+                    .entryTime(todayStart.minusDays(i).plusHours(14))
+                    .exitTime(todayStart.minusDays(i).plusHours(16))
                     .status(AccessStatus.COMPLETED)
                     .build();
             accessRecordRepository.save(completedMonth);
@@ -204,9 +207,6 @@ class ReportControllerIntegrationTest {
 
     @Test
     void getOccupancyReportBySpace_WithValidSpaceId_ReturnsSpaceReport() throws Exception {
-        // Set explicit timezone for test
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-
         mockMvc.perform(get("/api/reports/occupancy/space/" + testSpace.getId())
                         .header("Authorization", "Bearer " + studentToken))
                 .andExpect(status().isOk())
