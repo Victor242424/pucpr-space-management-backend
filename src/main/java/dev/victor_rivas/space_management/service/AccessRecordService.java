@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -70,10 +69,7 @@ public class AccessRecordService {
         accessRecord = accessRecordRepository.save(accessRecord);
 
         // Update space status if needed
-        if (currentOccupancy + 1 >= space.getCapacity()) {
-            space.setStatus(SpaceStatus.OCCUPIED);
-            spaceRepository.save(space);
-        } else if (space.getStatus() == SpaceStatus.AVAILABLE) {
+        if (currentOccupancy + 1 >= space.getCapacity() || space.getStatus() == SpaceStatus.AVAILABLE) {
             space.setStatus(SpaceStatus.OCCUPIED);
             spaceRepository.save(space);
         }
@@ -119,7 +115,7 @@ public class AccessRecordService {
     public List<AccessRecordDTO> getAllAccessRecords() {
         return accessRecordRepository.findAll().stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -129,7 +125,7 @@ public class AccessRecordService {
 
         return accessRecordRepository.findByStudent(student).stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -139,14 +135,14 @@ public class AccessRecordService {
 
         return accessRecordRepository.findBySpace(space).stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public List<AccessRecordDTO> getActiveAccessRecords() {
         return accessRecordRepository.findByStatus(AccessStatus.ACTIVE).stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private AccessRecordDTO convertToDTO(AccessRecord accessRecord) {
