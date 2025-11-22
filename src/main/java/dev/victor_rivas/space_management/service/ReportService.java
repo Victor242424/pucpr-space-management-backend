@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +26,7 @@ public class ReportService {
 
         return spaces.stream()
                 .map(this::generateOccupancyReport)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -40,7 +39,7 @@ public class ReportService {
 
     private OccupancyReportDTO generateOccupancyReport(Space space) {
         Long currentOccupancy = accessRecordRepository.countActiveAccessBySpace(space);
-        Double occupancyRate = (currentOccupancy.doubleValue() / space.getCapacity()) * 100;
+        double occupancyRate = (currentOccupancy.doubleValue() / space.getCapacity()) * 100;
 
         LocalDateTime startOfToday = LocalDateTime.now().with(LocalTime.MIN);
         LocalDateTime endOfToday = LocalDateTime.now().with(LocalTime.MAX);
@@ -55,7 +54,7 @@ public class ReportService {
         List<AccessRecord> monthRecords = accessRecordRepository
                 .findBySpaceAndEntryTimeBetween(space, startOfMonth, LocalDateTime.now());
 
-        Double averageDuration = monthRecords.stream()
+        double averageDuration = monthRecords.stream()
                 .filter(ar -> ar.getDurationInMinutes() != null)
                 .mapToLong(AccessRecord::getDurationInMinutes)
                 .average()

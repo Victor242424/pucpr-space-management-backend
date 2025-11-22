@@ -1,13 +1,12 @@
 package dev.victor_rivas.space_management.service;
 
+import dev.victor_rivas.space_management.constant.ExceptionMessagesConstants;
 import dev.victor_rivas.space_management.enums.Role;
-import dev.victor_rivas.space_management.enums.SpaceStatus;
 import dev.victor_rivas.space_management.enums.StudentStatus;
 import dev.victor_rivas.space_management.exception.BusinessException;
 import dev.victor_rivas.space_management.exception.ResourceNotFoundException;
 import dev.victor_rivas.space_management.model.dto.CreateStudentRequest;
 import dev.victor_rivas.space_management.model.dto.StudentDTO;
-import dev.victor_rivas.space_management.model.entity.Space;
 import dev.victor_rivas.space_management.model.entity.Student;
 import dev.victor_rivas.space_management.model.entity.User;
 import dev.victor_rivas.space_management.repository.AccessRecordRepository;
@@ -18,7 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -69,20 +67,24 @@ public class StudentService {
     public List<StudentDTO> getAllStudents() {
         return studentRepository.findAll().stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public StudentDTO getStudentById(Long id) {
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ExceptionMessagesConstants.STUDENT_NOT_FOUND + id)
+                );
         return convertToDTO(student);
     }
 
     @Transactional
     public StudentDTO updateStudent(Long id, StudentDTO studentDTO) {
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ExceptionMessagesConstants.STUDENT_NOT_FOUND + id)
+                );
 
         if (!student.getEmail().equals(studentDTO.getEmail()) &&
                 studentRepository.existsByEmail(studentDTO.getEmail())) {

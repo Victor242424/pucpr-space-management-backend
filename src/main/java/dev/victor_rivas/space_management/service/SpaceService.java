@@ -1,5 +1,6 @@
 package dev.victor_rivas.space_management.service;
 
+import dev.victor_rivas.space_management.constant.ExceptionMessagesConstants;
 import dev.victor_rivas.space_management.enums.SpaceStatus;
 import dev.victor_rivas.space_management.exception.BusinessException;
 import dev.victor_rivas.space_management.exception.ResourceNotFoundException;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,20 +45,24 @@ public class SpaceService {
     public List<SpaceDTO> getAllSpaces() {
         return spaceRepository.findAll().stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public SpaceDTO getSpaceById(Long id) {
         Space space = spaceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Space not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                    ExceptionMessagesConstants.SPACE_NOT_FOUND + id)
+                );
         return convertToDTO(space);
     }
 
     @Transactional
     public SpaceDTO updateSpace(Long id, SpaceDTO spaceDTO) {
         Space space = spaceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Space not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ExceptionMessagesConstants.SPACE_NOT_FOUND + id
+                ));
 
         if (!space.getCode().equals(spaceDTO.getCode()) &&
                 spaceRepository.existsByCode(spaceDTO.getCode())) {
@@ -84,7 +88,9 @@ public class SpaceService {
     @Transactional
     public void deleteSpace(Long id) {
         Space space = spaceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Space not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ExceptionMessagesConstants.SPACE_NOT_FOUND + id
+                ));
 
         if (accessRecordRepository.existsBySpaceId(id)){
             space.setStatus(SpaceStatus.UNAVAILABLE);
