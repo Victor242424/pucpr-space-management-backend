@@ -23,6 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.TimeZone;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -203,6 +204,9 @@ class ReportControllerIntegrationTest {
 
     @Test
     void getOccupancyReportBySpace_WithValidSpaceId_ReturnsSpaceReport() throws Exception {
+        // Set explicit timezone for test
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
         mockMvc.perform(get("/api/reports/occupancy/space/" + testSpace.getId())
                         .header("Authorization", "Bearer " + studentToken))
                 .andExpect(status().isOk())
