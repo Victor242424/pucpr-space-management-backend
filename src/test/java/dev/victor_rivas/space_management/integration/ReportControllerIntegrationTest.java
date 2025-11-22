@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -121,35 +122,55 @@ class ReportControllerIntegrationTest {
     }
 
     private void createAccessRecordsForTesting() {
-        LocalDateTime now = LocalDateTime.now();
-        now.minusDays(7);
+        LocalDate today = LocalDate.now();
+        LocalDateTime todayAt10AM = today.atTime(10, 0);
+        LocalDateTime todayAt11AM = today.atTime(11, 0);
+        LocalDateTime todayAt12PM = today.atTime(12, 0);
+        LocalDateTime todayAt1PM = today.atTime(13, 0);
+        LocalDateTime todayAt2PM = today.atTime(14, 0);
+        LocalDateTime todayAt3PM = today.atTime(15, 0);
 
         // Create active access record - today (within last 7 days)
         AccessRecord activeAccess = AccessRecord.builder()
                 .student(testStudent)
                 .space(testSpace)
-                .entryTime(now.minusHours(1))
+                .entryTime(todayAt10AM)
                 .status(AccessStatus.ACTIVE)
                 .build();
         accessRecordRepository.save(activeAccess);
 
-        // Create completed access records - today (within last 7 days)
-        for (int i = 0; i < 3; i++) {
-            AccessRecord completedToday = AccessRecord.builder()
-                    .student(testStudent)
-                    .space(testSpace)
-                    .entryTime(now.minusHours(3 + i))
-                    .exitTime(now.minusHours(2 + i))
-                    .status(AccessStatus.COMPLETED)
-                    .build();
-            accessRecordRepository.save(completedToday);
-        }
+        AccessRecord completedToday1 = AccessRecord.builder()
+                .student(testStudent)
+                .space(testSpace)
+                .entryTime(todayAt11AM)
+                .exitTime(todayAt12PM)
+                .status(AccessStatus.COMPLETED)
+                .build();
+        accessRecordRepository.save(completedToday1);
+
+        AccessRecord completedToday2 = AccessRecord.builder()
+                .student(testStudent)
+                .space(testSpace)
+                .entryTime(todayAt1PM)
+                .exitTime(todayAt2PM)
+                .status(AccessStatus.COMPLETED)
+                .build();
+        accessRecordRepository.save(completedToday2);
+
+        AccessRecord completedToday3 = AccessRecord.builder()
+                .student(testStudent)
+                .space(testSpace)
+                .entryTime(todayAt2PM)
+                .exitTime(todayAt3PM)
+                .status(AccessStatus.COMPLETED)
+                .build();
+        accessRecordRepository.save(completedToday3);
 
         AccessRecord weekRecord1 = AccessRecord.builder()
                 .student(testStudent)
                 .space(testSpace)
-                .entryTime(now.minusDays(3).minusHours(2))
-                .exitTime(now.minusDays(3).minusHours(1))
+                .entryTime(today.minusDays(3).atTime(10, 0))
+                .exitTime(today.minusDays(3).atTime(11, 0))
                 .status(AccessStatus.COMPLETED)
                 .build();
         accessRecordRepository.save(weekRecord1);
@@ -157,8 +178,8 @@ class ReportControllerIntegrationTest {
         AccessRecord weekRecord2 = AccessRecord.builder()
                 .student(testStudent)
                 .space(testSpace)
-                .entryTime(now.minusDays(5).minusHours(2))
-                .exitTime(now.minusDays(5).minusHours(1))
+                .entryTime(today.minusDays(5).atTime(10, 0))
+                .exitTime(today.minusDays(5).atTime(11, 0))
                 .status(AccessStatus.COMPLETED)
                 .build();
         accessRecordRepository.save(weekRecord2);
@@ -166,8 +187,8 @@ class ReportControllerIntegrationTest {
         AccessRecord monthRecord1 = AccessRecord.builder()
                 .student(testStudent)
                 .space(testSpace)
-                .entryTime(now.minusDays(10).minusHours(3))
-                .exitTime(now.minusDays(10).minusHours(2))
+                .entryTime(today.minusDays(10).atTime(10, 0))
+                .exitTime(today.minusDays(10).atTime(11, 0))
                 .status(AccessStatus.COMPLETED)
                 .build();
         accessRecordRepository.save(monthRecord1);
@@ -175,8 +196,8 @@ class ReportControllerIntegrationTest {
         AccessRecord monthRecord2 = AccessRecord.builder()
                 .student(testStudent)
                 .space(testSpace)
-                .entryTime(now.minusDays(15).minusHours(3))
-                .exitTime(now.minusDays(15).minusHours(2))
+                .entryTime(today.minusDays(15).atTime(10, 0))
+                .exitTime(today.minusDays(15).atTime(11, 0))
                 .status(AccessStatus.COMPLETED)
                 .build();
         accessRecordRepository.save(monthRecord2);
