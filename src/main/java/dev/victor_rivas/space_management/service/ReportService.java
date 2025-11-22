@@ -41,18 +41,21 @@ public class ReportService {
         Long currentOccupancy = accessRecordRepository.countActiveAccessBySpace(space);
         double occupancyRate = (currentOccupancy.doubleValue() / space.getCapacity()) * 100;
 
-        LocalDateTime startOfToday = LocalDateTime.now().with(LocalTime.MIN);
-        LocalDateTime endOfToday = LocalDateTime.now().with(LocalTime.MAX);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfToday = now.with(LocalTime.MIN);
+        LocalDateTime endOfToday = now.with(LocalTime.MAX);
+
+        LocalDateTime startOfWeek = now.minusDays(7).with(LocalTime.MIN);
+        LocalDateTime startOfMonth = now.minusDays(30).with(LocalTime.MIN);
+
         List<AccessRecord> todayRecords = accessRecordRepository
                 .findBySpaceAndEntryTimeBetween(space, startOfToday, endOfToday);
 
-        LocalDateTime startOfWeek = LocalDateTime.now().minusDays(7);
         List<AccessRecord> weekRecords = accessRecordRepository
-                .findBySpaceAndEntryTimeBetween(space, startOfWeek, LocalDateTime.now());
+                .findBySpaceAndEntryTimeBetween(space, startOfWeek, endOfToday);
 
-        LocalDateTime startOfMonth = LocalDateTime.now().minusDays(30);
         List<AccessRecord> monthRecords = accessRecordRepository
-                .findBySpaceAndEntryTimeBetween(space, startOfMonth, LocalDateTime.now());
+                .findBySpaceAndEntryTimeBetween(space, startOfMonth, endOfToday);
 
         double averageDuration = monthRecords.stream()
                 .filter(ar -> ar.getDurationInMinutes() != null)
