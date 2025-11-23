@@ -1,6 +1,5 @@
 package dev.victor_rivas.space_management.security;
 
-import dev.victor_rivas.space_management.config.CorsProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
