@@ -332,6 +332,10 @@ docker-compose logs -f app
 # Verificar status dos serviços
 docker-compose ps
 ```
+**Nota**: Certifique-se de que a rede `space-network` existe antes de executar:
+```bash
+docker network create space-network
+```
 
 Os seguintes serviços estarão disponíveis:
 
