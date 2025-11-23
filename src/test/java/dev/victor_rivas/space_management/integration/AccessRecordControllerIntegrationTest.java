@@ -176,7 +176,7 @@ class AccessRecordControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Student is not active"));
+                .andExpect(jsonPath("$.message").value("Estudante não está ativo"));
     }
 
     @Test
@@ -199,7 +199,7 @@ class AccessRecordControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Space is not available"));
+                .andExpect(jsonPath("$.message").value("Espaço não está disponível"));
     }
 
     @Test
@@ -222,7 +222,7 @@ class AccessRecordControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Student already has an active access in a space"));
+                .andExpect(jsonPath("$.message").value("Estudante já possui um acesso ativo em um espaço"));
     }
 
     @Test
@@ -255,7 +255,7 @@ class AccessRecordControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Student already has an active access in a space"));
+                .andExpect(jsonPath("$.message").value("Estudante já possui um acesso ativo em um espaço"));
     }
 
     @Test
@@ -269,7 +269,7 @@ class AccessRecordControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Student not found"));
+                .andExpect(jsonPath("$.message").value("Estudante não encontrado"));
     }
 
     @Test
@@ -283,7 +283,7 @@ class AccessRecordControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Space not found"));
+                .andExpect(jsonPath("$.message").value("Espaço não encontrado"));
     }
 
     @Test
@@ -323,7 +323,7 @@ class AccessRecordControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Access record is not active"));
+                .andExpect(jsonPath("$.message").value("Registro de acesso não está ativo"));
     }
 
     @Test
@@ -336,7 +336,7 @@ class AccessRecordControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Access record not found"));
+                .andExpect(jsonPath("$.message").value("Registro de acesso não encontrado"));
     }
 
     @Test
