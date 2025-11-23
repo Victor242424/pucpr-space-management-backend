@@ -1,1 +1,0 @@
-# pucpr-space-management-backend
