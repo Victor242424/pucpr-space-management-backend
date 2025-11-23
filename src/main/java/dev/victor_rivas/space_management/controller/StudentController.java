@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,8 @@ import java.util.List;
 @Tag(name = "Students", description = "Endpoints for student management")
 @SecurityRequirement(name = "bearerAuth")
 public class StudentController {
+
+    private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
 
     private final StudentService studentService;
 
@@ -50,8 +54,18 @@ public class StudentController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<StudentDTO>>> getAllStudents() {
-        List<StudentDTO> students = studentService.getAllStudents();
-        return ResponseEntity.ok(ApiResponse.success(students));
+        logger.info("Request to get all students");
+
+        try {
+            List<StudentDTO> students = studentService.getAllStudents();
+
+            logger.info("Retrieved {} students successfully", students.size());
+            return ResponseEntity.ok(ApiResponse.success(students));
+
+        } catch (Exception e) {
+            logger.error("Error retrieving all students: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Operation(
@@ -82,8 +96,19 @@ public class StudentController {
     public ResponseEntity<ApiResponse<StudentDTO>> getStudentById(
             @Parameter(description = "Student ID", required = true)
             @PathVariable Long id) {
-        StudentDTO student = studentService.getStudentById(id);
-        return ResponseEntity.ok(ApiResponse.success(student));
+
+        logger.info("Request to get student with ID: {}", id);
+
+        try {
+            StudentDTO student = studentService.getStudentById(id);
+
+            logger.info("Student retrieved successfully: {} - {}", id, student.getName());
+            return ResponseEntity.ok(ApiResponse.success(student));
+
+        } catch (Exception e) {
+            logger.error("Error retrieving student with ID: {}. Error: {}", id, e.getMessage());
+            throw e;
+        }
     }
 
     @Operation(
@@ -120,8 +145,20 @@ public class StudentController {
             @Parameter(description = "Student ID", required = true)
             @PathVariable Long id,
             @Valid @RequestBody StudentDTO studentDTO) {
-        StudentDTO updated = studentService.updateStudent(id, studentDTO);
-        return ResponseEntity.ok(ApiResponse.success("Student updated successfully", updated));
+
+        logger.info("Request to update student with ID: {}", id);
+        logger.debug("Update data: name={}, email={}", studentDTO.getName(), studentDTO.getEmail());
+
+        try {
+            StudentDTO updated = studentService.updateStudent(id, studentDTO);
+
+            logger.info("Student updated successfully: {}", id);
+            return ResponseEntity.ok(ApiResponse.success("Student updated successfully", updated));
+
+        } catch (Exception e) {
+            logger.error("Error updating student with ID: {}. Error: {}", id, e.getMessage());
+            throw e;
+        }
     }
 
     @Operation(
@@ -156,7 +193,18 @@ public class StudentController {
     public ResponseEntity<ApiResponse<Void>> deleteStudent(
             @Parameter(description = "Student ID", required = true)
             @PathVariable Long id) {
-        studentService.deleteStudent(id);
-        return ResponseEntity.ok(ApiResponse.success("Student deleted successfully", null));
+
+        logger.info("Request to delete student with ID: {}", id);
+
+        try {
+            studentService.deleteStudent(id);
+
+            logger.info("Student deleted successfully: {}", id);
+            return ResponseEntity.ok(ApiResponse.success("Student deleted successfully", null));
+
+        } catch (Exception e) {
+            logger.error("Error deleting student with ID: {}. Error: {}", id, e.getMessage());
+            throw e;
+        }
     }
 }

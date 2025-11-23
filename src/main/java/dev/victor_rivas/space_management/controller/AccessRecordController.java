@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,8 @@ import java.util.List;
 @Tag(name = "Access Records", description = "Endpoints for space access record management")
 @SecurityRequirement(name = "bearerAuth")
 public class AccessRecordController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AccessRecordController.class);
 
     private final AccessRecordService accessRecordService;
 
@@ -62,8 +66,29 @@ public class AccessRecordController {
     @PostMapping("/entry")
     public ResponseEntity<ApiResponse<AccessRecordDTO>> registerEntry(
             @Valid @RequestBody EntryRequest request) {
-        AccessRecordDTO accessRecord = accessRecordService.registerEntry(request);
-        return ResponseEntity.ok(ApiResponse.success("Entry registered successfully", accessRecord));
+
+        logger.info("Entry registration request - Student ID: {}, Space ID: {}",
+                request.getStudentId(), request.getSpaceId());
+        logger.debug("Entry notes: {}", request.getNotes());
+
+        try {
+            AccessRecordDTO accessRecord = accessRecordService.registerEntry(request);
+
+            logger.info("Entry registered successfully - Record ID: {}, Student: {}, Space: {}",
+                    accessRecord.getId(),
+                    request.getStudentId(),
+                    request.getSpaceId());
+
+            return ResponseEntity.ok(
+                    ApiResponse.success("Entry registered successfully", accessRecord));
+
+        } catch (Exception e) {
+            logger.error("Entry registration failed - Student: {}, Space: {}. Error: {}",
+                    request.getStudentId(),
+                    request.getSpaceId(),
+                    e.getMessage());
+            throw e;
+        }
     }
 
     @Operation(
@@ -98,8 +123,27 @@ public class AccessRecordController {
     @PostMapping("/exit")
     public ResponseEntity<ApiResponse<AccessRecordDTO>> registerExit(
             @Valid @RequestBody ExitRequest request) {
-        AccessRecordDTO accessRecord = accessRecordService.registerExit(request);
-        return ResponseEntity.ok(ApiResponse.success("Exit registered successfully", accessRecord));
+
+        logger.info("Exit registration request - Access Record ID: {}",
+                request.getAccessRecordId());
+        logger.debug("Exit notes: {}", request.getNotes());
+
+        try {
+            AccessRecordDTO accessRecord = accessRecordService.registerExit(request);
+
+            logger.info("Exit registered successfully - Record ID: {}, Duration: {} minutes",
+                    accessRecord.getId(),
+                    accessRecord.getDurationInMinutes());
+
+            return ResponseEntity.ok(
+                    ApiResponse.success("Exit registered successfully", accessRecord));
+
+        } catch (Exception e) {
+            logger.error("Exit registration failed - Record ID: {}. Error: {}",
+                    request.getAccessRecordId(),
+                    e.getMessage());
+            throw e;
+        }
     }
 
     @Operation(
@@ -126,8 +170,18 @@ public class AccessRecordController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<AccessRecordDTO>>> getAllAccessRecords() {
-        List<AccessRecordDTO> records = accessRecordService.getAllAccessRecords();
-        return ResponseEntity.ok(ApiResponse.success(records));
+        logger.info("Request to get all access records");
+
+        try {
+            List<AccessRecordDTO> records = accessRecordService.getAllAccessRecords();
+
+            logger.info("Retrieved {} access records successfully", records.size());
+            return ResponseEntity.ok(ApiResponse.success(records));
+
+        } catch (Exception e) {
+            logger.error("Error retrieving all access records: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Operation(
@@ -155,8 +209,20 @@ public class AccessRecordController {
     public ResponseEntity<ApiResponse<List<AccessRecordDTO>>> getAccessRecordsByStudent(
             @Parameter(description = "Student ID", required = true)
             @PathVariable Long studentId) {
-        List<AccessRecordDTO> records = accessRecordService.getAccessRecordsByStudent(studentId);
-        return ResponseEntity.ok(ApiResponse.success(records));
+
+        logger.info("Request to get access records for student ID: {}", studentId);
+
+        try {
+            List<AccessRecordDTO> records = accessRecordService.getAccessRecordsByStudent(studentId);
+
+            logger.info("Retrieved {} access records for student ID: {}", records.size(), studentId);
+            return ResponseEntity.ok(ApiResponse.success(records));
+
+        } catch (Exception e) {
+            logger.error("Error retrieving access records for student ID: {}. Error: {}",
+                    studentId, e.getMessage());
+            throw e;
+        }
     }
 
     @Operation(
@@ -184,8 +250,20 @@ public class AccessRecordController {
     public ResponseEntity<ApiResponse<List<AccessRecordDTO>>> getAccessRecordsBySpace(
             @Parameter(description = "Space ID", required = true)
             @PathVariable Long spaceId) {
-        List<AccessRecordDTO> records = accessRecordService.getAccessRecordsBySpace(spaceId);
-        return ResponseEntity.ok(ApiResponse.success(records));
+
+        logger.info("Request to get access records for space ID: {}", spaceId);
+
+        try {
+            List<AccessRecordDTO> records = accessRecordService.getAccessRecordsBySpace(spaceId);
+
+            logger.info("Retrieved {} access records for space ID: {}", records.size(), spaceId);
+            return ResponseEntity.ok(ApiResponse.success(records));
+
+        } catch (Exception e) {
+            logger.error("Error retrieving access records for space ID: {}. Error: {}",
+                    spaceId, e.getMessage());
+            throw e;
+        }
     }
 
     @Operation(
@@ -207,7 +285,17 @@ public class AccessRecordController {
     })
     @GetMapping("/active")
     public ResponseEntity<ApiResponse<List<AccessRecordDTO>>> getActiveAccessRecords() {
-        List<AccessRecordDTO> records = accessRecordService.getActiveAccessRecords();
-        return ResponseEntity.ok(ApiResponse.success(records));
+        logger.info("Request to get active access records");
+
+        try {
+            List<AccessRecordDTO> records = accessRecordService.getActiveAccessRecords();
+
+            logger.info("Retrieved {} active access records", records.size());
+            return ResponseEntity.ok(ApiResponse.success(records));
+
+        } catch (Exception e) {
+            logger.error("Error retrieving active access records: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 }

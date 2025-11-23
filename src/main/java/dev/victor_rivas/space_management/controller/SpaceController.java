@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,8 @@ import java.util.List;
 @Tag(name = "Spaces", description = "Endpoints for space management (classrooms, laboratories, study rooms)")
 @SecurityRequirement(name = "bearerAuth")
 public class SpaceController {
+
+    private static final Logger logger = LoggerFactory.getLogger(SpaceController.class);
 
     private final SpaceService spaceService;
 
@@ -45,8 +49,18 @@ public class SpaceController {
     })
     @GetMapping
     public ResponseEntity<ApiResponse<List<SpaceDTO>>> getAllSpaces() {
-        List<SpaceDTO> spaces = spaceService.getAllSpaces();
-        return ResponseEntity.ok(ApiResponse.success(spaces));
+        logger.info("Request to get all spaces");
+
+        try {
+            List<SpaceDTO> spaces = spaceService.getAllSpaces();
+
+            logger.info("Retrieved {} spaces successfully", spaces.size());
+            return ResponseEntity.ok(ApiResponse.success(spaces));
+
+        } catch (Exception e) {
+            logger.error("Error retrieving all spaces: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Operation(
@@ -77,8 +91,20 @@ public class SpaceController {
     public ResponseEntity<ApiResponse<SpaceDTO>> getSpaceById(
             @Parameter(description = "Space ID", required = true)
             @PathVariable Long id) {
-        SpaceDTO space = spaceService.getSpaceById(id);
-        return ResponseEntity.ok(ApiResponse.success(space));
+
+        logger.info("Request to get space with ID: {}", id);
+
+        try {
+            SpaceDTO space = spaceService.getSpaceById(id);
+
+            logger.info("Space retrieved successfully: {} - {} (Occupancy: {}/{})",
+                    id, space.getName(), space.getCurrentOccupancy(), space.getCapacity());
+            return ResponseEntity.ok(ApiResponse.success(space));
+
+        } catch (Exception e) {
+            logger.error("Error retrieving space with ID: {}. Error: {}", id, e.getMessage());
+            throw e;
+        }
     }
 
     @Operation(
@@ -114,8 +140,21 @@ public class SpaceController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<SpaceDTO>> createSpace(
             @Valid @RequestBody SpaceDTO spaceDTO) {
-        SpaceDTO created = spaceService.createSpace(spaceDTO);
-        return ResponseEntity.ok(ApiResponse.success("Space created successfully", created));
+
+        logger.info("Request to create new space: {} - {}", spaceDTO.getCode(), spaceDTO.getName());
+        logger.debug("Space details: type={}, capacity={}, building={}",
+                spaceDTO.getType(), spaceDTO.getCapacity(), spaceDTO.getBuilding());
+
+        try {
+            SpaceDTO created = spaceService.createSpace(spaceDTO);
+
+            logger.info("Space created successfully: {} (ID: {})", created.getCode(), created.getId());
+            return ResponseEntity.ok(ApiResponse.success("Space created successfully", created));
+
+        } catch (Exception e) {
+            logger.error("Error creating space: {}. Error: {}", spaceDTO.getCode(), e.getMessage());
+            throw e;
+        }
     }
 
     @Operation(
@@ -158,8 +197,21 @@ public class SpaceController {
             @Parameter(description = "Space ID", required = true)
             @PathVariable Long id,
             @Valid @RequestBody SpaceDTO spaceDTO) {
-        SpaceDTO updated = spaceService.updateSpace(id, spaceDTO);
-        return ResponseEntity.ok(ApiResponse.success("Space updated successfully", updated));
+
+        logger.info("Request to update space with ID: {}", id);
+        logger.debug("Update data: code={}, name={}, capacity={}",
+                spaceDTO.getCode(), spaceDTO.getName(), spaceDTO.getCapacity());
+
+        try {
+            SpaceDTO updated = spaceService.updateSpace(id, spaceDTO);
+
+            logger.info("Space updated successfully: {}", id);
+            return ResponseEntity.ok(ApiResponse.success("Space updated successfully", updated));
+
+        } catch (Exception e) {
+            logger.error("Error updating space with ID: {}. Error: {}", id, e.getMessage());
+            throw e;
+        }
     }
 
     @Operation(
@@ -194,7 +246,18 @@ public class SpaceController {
     public ResponseEntity<ApiResponse<Void>> deleteSpace(
             @Parameter(description = "Space ID", required = true)
             @PathVariable Long id) {
-        spaceService.deleteSpace(id);
-        return ResponseEntity.ok(ApiResponse.success("Space deleted successfully", null));
+
+        logger.info("Request to delete space with ID: {}", id);
+
+        try {
+            spaceService.deleteSpace(id);
+
+            logger.info("Space deleted successfully: {}", id);
+            return ResponseEntity.ok(ApiResponse.success("Space deleted successfully", null));
+
+        } catch (Exception e) {
+            logger.error("Error deleting space with ID: {}. Error: {}", id, e.getMessage());
+            throw e;
+        }
     }
 }
