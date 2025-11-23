@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/spaces")
 @RequiredArgsConstructor
-@Tag(name = "Spaces", description = "Endpoints for space management (classrooms, laboratories, study rooms)")
+@Tag(name = "Espaços", description = "Endpoints para gerenciamento de espaços (salas de aula, laboratórios, salas de estudo)")
 @SecurityRequirement(name = "bearerAuth")
 public class SpaceController {
 
@@ -31,19 +31,19 @@ public class SpaceController {
     private final SpaceService spaceService;
 
     @Operation(
-            summary = "Get all spaces",
-            description = "Returns the complete list of spaces available in the system with their " +
-                    "current capacity and occupancy information"
+            summary = "Obter todos os espaços",
+            description = "Retorna a lista completa de espaços disponíveis no sistema com suas " +
+                    "informações de capacidade e ocupação atuais"
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Space list retrieved successfully",
+                    description = "Lista de espaços obtida com sucesso",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
@@ -64,13 +64,13 @@ public class SpaceController {
     }
 
     @Operation(
-            summary = "Get space by ID",
-            description = "Returns detailed information of a specific space including its current occupancy"
+            summary = "Obter espaço por ID",
+            description = "Retorna informações detalhadas de um espaço específico incluindo sua ocupação atual"
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Space found",
+                    description = "Espaço encontrado",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = SpaceDTO.class)
@@ -78,18 +78,18 @@ public class SpaceController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
-                    description = "Space not found",
+                    description = "Espaço não encontrado",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<SpaceDTO>> getSpaceById(
-            @Parameter(description = "Space ID", required = true)
+            @Parameter(description = "ID do Espaço", required = true)
             @PathVariable Long id) {
 
         logger.info("Request to get space with ID: {}", id);
@@ -108,13 +108,13 @@ public class SpaceController {
     }
 
     @Operation(
-            summary = "Create new space",
-            description = "Creates a new space in the system. Requires ADMIN role."
+            summary = "Criar novo espaço",
+            description = "Cria um novo espaço no sistema. Requer papel ADMIN."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Space created successfully",
+                    description = "Espaço criado com sucesso",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = SpaceDTO.class)
@@ -122,17 +122,17 @@ public class SpaceController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
-                    description = "Invalid data or space code already exists",
+                    description = "Dados inválidos ou código do espaço já existe",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "403",
-                    description = "Access denied - ADMIN role required",
+                    description = "Acesso negado - papel ADMIN necessário",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
@@ -158,13 +158,13 @@ public class SpaceController {
     }
 
     @Operation(
-            summary = "Update space",
-            description = "Updates the information of an existing space. Requires ADMIN role."
+            summary = "Atualizar espaço",
+            description = "Atualiza as informações de um espaço existente. Requer papel ADMIN."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Space updated successfully",
+                    description = "Espaço atualizado com sucesso",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = SpaceDTO.class)
@@ -172,29 +172,29 @@ public class SpaceController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
-                    description = "Space not found",
+                    description = "Espaço não encontrado",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
-                    description = "Invalid data",
+                    description = "Dados inválidos",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "403",
-                    description = "Access denied - ADMIN role required",
+                    description = "Acesso negado - papel ADMIN necessário",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<SpaceDTO>> updateSpace(
-            @Parameter(description = "Space ID", required = true)
+            @Parameter(description = "ID do Espaço", required = true)
             @PathVariable Long id,
             @Valid @RequestBody SpaceDTO spaceDTO) {
 
@@ -215,36 +215,36 @@ public class SpaceController {
     }
 
     @Operation(
-            summary = "Delete space",
-            description = "Deletes a space from the system. Requires ADMIN role. " +
-                    "If the space has access records, it will be marked as UNAVAILABLE instead of being deleted."
+            summary = "Excluir espaço",
+            description = "Exclui um espaço do sistema. Requer papel ADMIN. " +
+                    "Se o espaço tiver registros de acesso, será marcado como INDISPONÍVEL em vez de ser excluído."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Space deleted successfully",
+                    description = "Espaço excluído com sucesso",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
-                    description = "Space not found",
+                    description = "Espaço não encontrado",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "403",
-                    description = "Access denied - ADMIN role required",
+                    description = "Acesso negado - papel ADMIN necessário",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteSpace(
-            @Parameter(description = "Space ID", required = true)
+            @Parameter(description = "ID do Espaço", required = true)
             @PathVariable Long id) {
 
         logger.info("Request to delete space with ID: {}", id);

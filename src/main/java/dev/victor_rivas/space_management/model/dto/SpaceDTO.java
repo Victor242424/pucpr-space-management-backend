@@ -12,19 +12,19 @@ import lombok.*;
 public class SpaceDTO {
     private Long id;
 
-    @NotBlank(message = "Code is required")
-    @Size(max = 50, message = "Code must not exceed 50 characters")
+    @NotBlank(message = "Código é obrigatório")
+    @Size(max = 50, message = "Código não deve exceder 50 caracteres")
     private String code;
 
-    @NotBlank(message = "Name is required")
-    @Size(max = 100, message = "Name must not exceed 100 characters")
+    @NotBlank(message = "Nome é obrigatório")
+    @Size(max = 100, message = "Nome não deve exceder 100 caracteres")
     private String name;
 
-    @NotNull(message = "Type is required")
+    @NotNull(message = "Tipo é obrigatório")
     private SpaceType type;
 
-    @NotNull(message = "Capacity is required")
-    @Min(value = 1, message = "Capacity must be at least 1")
+    @NotNull(message = "Capacidade é obrigatória")
+    @Min(value = 1, message = "Capacidade deve ser no mínimo 1")
     private Integer capacity;
 
     private String building;

@@ -8,18 +8,18 @@ import lombok.*;
 @AllArgsConstructor
 public class CreateStudentRequest {
 
-    @NotBlank(message = "Registration number is required")
+    @NotBlank(message = "Número de matrícula é obrigatório")
     private String registrationNumber;
 
-    @NotBlank(message = "Name is required")
+    @NotBlank(message = "Nome é obrigatório")
     private String name;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
+    @NotBlank(message = "Email é obrigatório")
+    @Email(message = "Email deve ser válido")
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
+    @NotBlank(message = "Senha é obrigatória")
+    @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
     private String password;
 
     private String phoneNumber;

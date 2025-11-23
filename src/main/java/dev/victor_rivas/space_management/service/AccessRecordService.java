@@ -35,30 +35,30 @@ public class AccessRecordService {
     public AccessRecordDTO registerEntry(EntryRequest request) {
         return metricsService.getEntryRegistrationTimer().record(() -> {
             Student student = studentRepository.findById(request.getStudentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Estudante não encontrado"));
 
             if (student.getStatus() != StudentStatus.ACTIVE) {
-                throw new BusinessException("Student is not active");
+                throw new BusinessException("Estudante não está ativo");
             }
 
             Space space = spaceRepository.findById(request.getSpaceId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Space not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Espaço não encontrado"));
 
             if (space.getStatus() != SpaceStatus.AVAILABLE &&
                     space.getStatus() != SpaceStatus.OCCUPIED) {
-                throw new BusinessException("Space is not available");
+                throw new BusinessException("Espaço não está disponível");
             }
 
             List<AccessRecord> studentActiveAccesses = accessRecordRepository
                     .findByStudentAndStatus(student, AccessStatus.ACTIVE);
 
             if (!studentActiveAccesses.isEmpty()) {
-                throw new BusinessException("Student already has an active access in a space");
+                throw new BusinessException("Estudante já possui um acesso ativo em um espaço");
             }
 
             Long currentOccupancy = accessRecordRepository.countActiveAccessBySpace(space);
             if (currentOccupancy >= space.getCapacity()) {
-                throw new BusinessException("Space has reached maximum capacity");
+                throw new BusinessException("Espaço atingiu a capacidade máxima");
             }
 
             AccessRecord accessRecord = AccessRecord.builder()
@@ -88,10 +88,10 @@ public class AccessRecordService {
     public AccessRecordDTO registerExit(ExitRequest request) {
         return metricsService.getExitRegistrationTimer().record(() -> {
             AccessRecord accessRecord = accessRecordRepository.findById(request.getAccessRecordId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Access record not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Registro de acesso não encontrado"));
 
             if (accessRecord.getStatus() != AccessStatus.ACTIVE) {
-                throw new BusinessException("Access record is not active");
+                throw new BusinessException("Registro de acesso não está ativo");
             }
 
             accessRecord.setExitTime(LocalDateTime.now());

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Endpoints for authentication and user registration")
+@Tag(name = "Autenticação", description = "Endpoints para autenticação e registro de usuários")
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -29,12 +29,12 @@ public class AuthController {
 
     @Operation(
             summary = "Login",
-            description = "Authenticate user with credentials and obtain JWT token"
+            description = "Autenticar usuário com credenciais e obter token JWT"
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Login successful",
+                    description = "Login realizado com sucesso",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = AuthResponse.class)
@@ -42,12 +42,12 @@ public class AuthController {
             ),
             @ApiResponse(
                     responseCode = "401",
-                    description = "Invalid credentials",
+                    description = "Credenciais inválidas",
                     content = @Content(mediaType = "application/json")
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Invalid input data",
+                    description = "Dados de entrada inválidos",
                     content = @Content(mediaType = "application/json")
             )
     })
@@ -75,13 +75,13 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "Register new student",
-            description = "Create a new student account in the system"
+            summary = "Registrar novo estudante",
+            description = "Criar uma nova conta de estudante no sistema"
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Student registered successfully",
+                    description = "Estudante registrado com sucesso",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = StudentDTO.class)
@@ -89,7 +89,7 @@ public class AuthController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Invalid data or student already exists",
+                    description = "Dados inválidos ou estudante já existe",
                     content = @Content(mediaType = "application/json")
             )
     })

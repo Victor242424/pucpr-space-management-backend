@@ -8,9 +8,9 @@ import lombok.*;
 @AllArgsConstructor
 public class LoginRequest {
 
-    @NotBlank(message = "Username is required")
+    @NotBlank(message = "Usuário é obrigatório")
     private String username;
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = "Senha é obrigatória")
     private String password;
 }

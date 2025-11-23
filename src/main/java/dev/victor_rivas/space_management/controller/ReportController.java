@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/reports")
 @RequiredArgsConstructor
-@Tag(name = "Reports", description = "Endpoints for generating reports and occupancy statistics")
+@Tag(name = "Relatórios", description = "Endpoints para gerar relatórios e estatísticas de ocupação")
 @SecurityRequirement(name = "bearerAuth")
 public class ReportController {
 
@@ -29,14 +29,14 @@ public class ReportController {
     private final ReportService reportService;
 
     @Operation(
-            summary = "Get occupancy report for all spaces",
-            description = "Generates a complete occupancy report for all spaces in the system. " +
-                    "Includes current occupancy, occupancy rate, accesses today/week/month and average duration."
+            summary = "Obter relatório de ocupação de todos os espaços",
+            description = "Gera um relatório completo de ocupação de todos os espaços do sistema. " +
+                    "Inclui ocupação atual, taxa de ocupação, acessos hoje/semana/mês e duração média."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Report generated successfully",
+                    description = "Relatório gerado com sucesso",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = OccupancyReportDTO.class)
@@ -44,7 +44,7 @@ public class ReportController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
@@ -73,18 +73,18 @@ public class ReportController {
     }
 
     @Operation(
-            summary = "Get occupancy report by space",
-            description = "Generates a detailed occupancy report for a specific space. " +
-                    "Includes:\n" +
-                    "- Current occupancy and maximum capacity\n" +
-                    "- Occupancy rate in percentage\n" +
-                    "- Total accesses today, this week and this month\n" +
-                    "- Average visit duration"
+            summary = "Obter relatório de ocupação por espaço",
+            description = "Gera um relatório detalhado de ocupação de um espaço específico. " +
+                    "Inclui:\n" +
+                    "- Ocupação atual e capacidade máxima\n" +
+                    "- Taxa de ocupação em percentual\n" +
+                    "- Total de acessos hoje, nesta semana e neste mês\n" +
+                    "- Duração média das visitas"
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Report generated successfully",
+                    description = "Relatório gerado com sucesso",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = OccupancyReportDTO.class)
@@ -92,18 +92,18 @@ public class ReportController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
-                    description = "Space not found",
+                    description = "Espaço não encontrado",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
     @GetMapping("/occupancy/space/{spaceId}")
     public ResponseEntity<ApiResponse<OccupancyReportDTO>> getOccupancyReportBySpace(
-            @Parameter(description = "Space ID", required = true, example = "1")
+            @Parameter(description = "ID do Espaço", required = true, example = "1")
             @PathVariable Long spaceId) {
 
         logger.info("Request to generate occupancy report for space ID: {}", spaceId);

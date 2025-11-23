@@ -24,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/access")
 @RequiredArgsConstructor
-@Tag(name = "Access Records", description = "Endpoints for space access record management")
+@Tag(name = "Registros de Acesso", description = "Endpoints para gerenciamento de registros de acesso aos espaços")
 @SecurityRequirement(name = "bearerAuth")
 public class AccessRecordController {
 
@@ -33,14 +33,14 @@ public class AccessRecordController {
     private final AccessRecordService accessRecordService;
 
     @Operation(
-            summary = "Register entry to a space",
-            description = "Registers a student's entry to a specific space. " +
-                    "Validates that the student is active, the space is available and does not exceed maximum capacity."
+            summary = "Registrar entrada em um espaço",
+            description = "Registra a entrada de um estudante em um espaço específico. " +
+                    "Valida que o estudante esteja ativo, o espaço esteja disponível e não exceda a capacidade máxima."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Entry registered successfully",
+                    description = "Entrada registrada com sucesso",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = AccessRecordDTO.class)
@@ -48,18 +48,18 @@ public class AccessRecordController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
-                    description = "Validation error: inactive student, space not available, " +
-                            "maximum capacity reached or student already has an active access",
+                    description = "Erro de validação: estudante inativo, espaço não disponível, " +
+                            "capacidade máxima atingida ou estudante já possui acesso ativo",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
-                    description = "Student or space not found",
+                    description = "Estudante ou espaço não encontrado",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
@@ -92,13 +92,13 @@ public class AccessRecordController {
     }
 
     @Operation(
-            summary = "Register exit from a space",
-            description = "Registers a student's exit from a space and calculates the visit duration"
+            summary = "Registrar saída de um espaço",
+            description = "Registra a saída de um estudante de um espaço e calcula a duração da visita"
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Exit registered successfully",
+                    description = "Saída registrada com sucesso",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = AccessRecordDTO.class)
@@ -106,17 +106,17 @@ public class AccessRecordController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
-                    description = "Access record is not active",
+                    description = "Registro de acesso não está ativo",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
-                    description = "Access record not found",
+                    description = "Registro de acesso não encontrado",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
@@ -147,23 +147,23 @@ public class AccessRecordController {
     }
 
     @Operation(
-            summary = "Get all access records",
-            description = "Returns the complete list of access records. Requires ADMIN role."
+            summary = "Obter todos os registros de acesso",
+            description = "Retorna a lista completa de registros de acesso. Requer papel ADMIN."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Access records list retrieved successfully",
+                    description = "Lista de registros de acesso obtida com sucesso",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "403",
-                    description = "Access denied - ADMIN role required",
+                    description = "Acesso negado - papel ADMIN necessário",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
@@ -185,29 +185,29 @@ public class AccessRecordController {
     }
 
     @Operation(
-            summary = "Get access records by student",
-            description = "Returns all access records for a specific student"
+            summary = "Obter registros de acesso por estudante",
+            description = "Retorna todos os registros de acesso de um estudante específico"
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Records retrieved successfully",
+                    description = "Registros obtidos com sucesso",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
-                    description = "Student not found",
+                    description = "Estudante não encontrado",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
     @GetMapping("/student/{studentId}")
     public ResponseEntity<ApiResponse<List<AccessRecordDTO>>> getAccessRecordsByStudent(
-            @Parameter(description = "Student ID", required = true)
+            @Parameter(description = "ID do Estudante", required = true)
             @PathVariable Long studentId) {
 
         logger.info("Request to get access records for student ID: {}", studentId);
@@ -226,29 +226,29 @@ public class AccessRecordController {
     }
 
     @Operation(
-            summary = "Get access records by space",
-            description = "Returns all access records for a specific space"
+            summary = "Obter registros de acesso por espaço",
+            description = "Retorna todos os registros de acesso de um espaço específico"
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Records retrieved successfully",
+                    description = "Registros obtidos com sucesso",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
-                    description = "Space not found",
+                    description = "Espaço não encontrado",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
     @GetMapping("/space/{spaceId}")
     public ResponseEntity<ApiResponse<List<AccessRecordDTO>>> getAccessRecordsBySpace(
-            @Parameter(description = "Space ID", required = true)
+            @Parameter(description = "ID do Espaço", required = true)
             @PathVariable Long spaceId) {
 
         logger.info("Request to get access records for space ID: {}", spaceId);
@@ -267,19 +267,19 @@ public class AccessRecordController {
     }
 
     @Operation(
-            summary = "Get active access records",
-            description = "Returns all access records that are currently in progress " +
-                    "(students who have entered but have not yet exited)"
+            summary = "Obter registros de acesso ativos",
+            description = "Retorna todos os registros de acesso que estão atualmente em andamento " +
+                    "(estudantes que entraram mas ainda não saíram)"
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Active records retrieved successfully",
+                    description = "Registros ativos obtidos com sucesso",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })

@@ -11,20 +11,20 @@ import lombok.*;
 public class StudentDTO {
     private Long id;
 
-    @NotBlank(message = "Registration number is required")
-    @Size(max = 20, message = "Registration number must not exceed 20 characters")
+    @NotBlank(message = "Número de matrícula é obrigatório")
+    @Size(max = 20, message = "Número de matrícula não deve exceder 20 caracteres")
     private String registrationNumber;
 
-    @NotBlank(message = "Name is required")
-    @Size(max = 100, message = "Name must not exceed 100 characters")
+    @NotBlank(message = "Nome é obrigatório")
+    @Size(max = 100, message = "Nome não deve exceder 100 caracteres")
     private String name;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
-    @Size(max = 100, message = "Email must not exceed 100 characters")
+    @NotBlank(message = "Email é obrigatório")
+    @Email(message = "Email deve ser válido")
+    @Size(max = 100, message = "Email não deve exceder 100 caracteres")
     private String email;
 
-    @Size(max = 20, message = "Phone number must not exceed 20 characters")
+    @Size(max = 20, message = "Número de telefone não deve exceder 20 caracteres")
     private String phoneNumber;
 
     private StudentStatus status;

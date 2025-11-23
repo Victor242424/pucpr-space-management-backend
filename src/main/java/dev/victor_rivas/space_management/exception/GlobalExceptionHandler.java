@@ -57,8 +57,8 @@ public class GlobalExceptionHandler {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error("Validation Failed")
-                .message("Invalid input data")
+                .error("Validação Falhou")
+                .message("Dados de entrada inválidos")
                 .path(request.getDescription(false).replace("uri=", ""))
                 .details(details)
                 .build();
@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
-                .message("Invalid username or password")
+                .message("Usuário ou senha inválidos")
                 .path(request.getDescription(false).replace("uri=", ""))
                 .build();
 
@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.FORBIDDEN.value())
                 .error(HttpStatus.FORBIDDEN.getReasonPhrase())
-                .message("Forbidden")
+                .message("Acesso negado")
                 .path(request.getDescription(false).replace("uri=", ""))
                 .build();
 
@@ -101,7 +101,7 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .message("An unexpected error occurred")
+                .message("Ocorreu um erro inesperado")
                 .path(request.getDescription(false).replace("uri=", ""))
                 .build();
 

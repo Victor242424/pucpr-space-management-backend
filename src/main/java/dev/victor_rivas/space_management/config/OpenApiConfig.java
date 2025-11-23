@@ -31,9 +31,9 @@ public class OpenApiConfig {
         return new OpenAPI()
                 // Información general de la API
                 .info(new Info()
-                        .title("Space Management System API")
-                        .description("REST API for educational space management system. " +
-                                "Allows managing students, spaces, access records and generating occupancy reports.")
+                        .title("Space Management API")
+                        .description("API REST para sistema de gerenciamento de espaços educacionais. " +
+                                "Permite gerenciar estudantes, espaços, registros de acesso e gerar relatórios de ocupação.")
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Victor Rivas")
@@ -47,10 +47,10 @@ public class OpenApiConfig {
                 .servers(List.of(
                         new Server()
                                 .url(devUrl)
-                                .description("Development Server"),
+                                .description("Servidor de Desenvolvimento"),
                         new Server()
                                 .url(prodUrl)
-                                .description("Production Server")
+                                .description("Servidor de Produção")
                 ))
 
                 // Configuración de seguridad JWT
@@ -62,6 +62,6 @@ public class OpenApiConfig {
                                 .type(SecurityScheme.Type.HTTP)
                                 .scheme("bearer")
                                 .bearerFormat("JWT")
-                                .description("Enter the JWT token obtained from the /api/auth/login endpoint")));
+                                .description("Informe o token JWT obtido do endpoint /api/auth/login")));
     }
 }

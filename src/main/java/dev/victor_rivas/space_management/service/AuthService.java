@@ -50,7 +50,7 @@ public class AuthService {
 
             // Obtener información del usuario
             User user = userRepository.findByUsername(request.getUsername())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
             // Registrar métrica de éxito
             metricsService.recordLoginSuccess();

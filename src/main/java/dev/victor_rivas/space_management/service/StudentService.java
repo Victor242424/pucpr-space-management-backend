@@ -30,11 +30,11 @@ public class StudentService {
     @Transactional
     public StudentDTO createStudent(CreateStudentRequest request) {
         if (studentRepository.existsByRegistrationNumber(request.getRegistrationNumber())) {
-            throw new BusinessException("Registration number already exists");
+            throw new BusinessException("Número de matrícula já existe");
         }
 
         if (studentRepository.existsByEmail(request.getEmail())) {
-            throw new BusinessException("Email already exists");
+            throw new BusinessException("Email já existe");
         }
 
         Student student = Student.builder()
@@ -88,7 +88,7 @@ public class StudentService {
 
         if (!student.getEmail().equals(studentDTO.getEmail()) &&
                 studentRepository.existsByEmail(studentDTO.getEmail())) {
-            throw new BusinessException("Email already exists");
+            throw new BusinessException("Email já existe");
         }
 
         student.setName(studentDTO.getName());
@@ -106,7 +106,7 @@ public class StudentService {
     @Transactional
     public void deleteStudent(Long id) {
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Estudante não encontrado com id: " + id));
         if (accessRecordRepository.existsByStudentId(id)){
             student.setStatus(StudentStatus.INACTIVE);
             studentRepository.save(student);
@@ -115,7 +115,7 @@ public class StudentService {
             if (!userRepository.existsByStudentId(id)){
                 studentRepository.deleteById(id);
             } else {
-                throw new ResourceNotFoundException("User not found with student id: " + id);
+                throw new ResourceNotFoundException("Usuário não encontrado com id de estudante: " + id);
             }
         }
     }

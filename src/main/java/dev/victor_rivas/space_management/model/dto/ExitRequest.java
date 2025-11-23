@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 public class ExitRequest {
 
-    @NotNull(message = "Access record ID is required")
+    @NotNull(message = "ID do registro de acesso é obrigatório")
     private Long accessRecordId;
 
     private String notes;

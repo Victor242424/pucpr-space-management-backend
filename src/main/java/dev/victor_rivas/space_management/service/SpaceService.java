@@ -23,7 +23,7 @@ public class SpaceService {
     @Transactional
     public SpaceDTO createSpace(SpaceDTO spaceDTO) {
         if (spaceRepository.existsByCode(spaceDTO.getCode())) {
-            throw new BusinessException("Space code already exists");
+            throw new BusinessException("Código do espaço já existe");
         }
 
         Space space = Space.builder()
@@ -66,7 +66,7 @@ public class SpaceService {
 
         if (!space.getCode().equals(spaceDTO.getCode()) &&
                 spaceRepository.existsByCode(spaceDTO.getCode())) {
-            throw new BusinessException("Space code already exists");
+            throw new BusinessException("Código do espaço já existe");
         }
 
         space.setCode(spaceDTO.getCode());

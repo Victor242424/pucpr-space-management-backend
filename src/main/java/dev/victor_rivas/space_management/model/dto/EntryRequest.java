@@ -8,10 +8,10 @@ import lombok.*;
 @AllArgsConstructor
 public class EntryRequest {
 
-    @NotNull(message = "Student ID is required")
+    @NotNull(message = "ID do estudante é obrigatório")
     private Long studentId;
 
-    @NotNull(message = "Space ID is required")
+    @NotNull(message = "ID do espaço é obrigatório")
     private Long spaceId;
 
     private String notes;

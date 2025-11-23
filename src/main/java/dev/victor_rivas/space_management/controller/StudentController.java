@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/students")
 @RequiredArgsConstructor
-@Tag(name = "Students", description = "Endpoints for student management")
+@Tag(name = "Estudantes", description = "Endpoints para gerenciamento de estudantes")
 @SecurityRequirement(name = "bearerAuth")
 public class StudentController {
 
@@ -31,23 +31,23 @@ public class StudentController {
     private final StudentService studentService;
 
     @Operation(
-            summary = "Get all students",
-            description = "Returns the complete list of registered students. Requires ADMIN role."
+            summary = "Obter todos os estudantes",
+            description = "Retorna a lista completa de estudantes registrados. Requer papel ADMIN."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Student list retrieved successfully",
+                    description = "Lista de estudantes obtida com sucesso",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "403",
-                    description = "Access denied - ADMIN role required",
+                    description = "Acesso negado - papel ADMIN necessário",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
@@ -69,13 +69,13 @@ public class StudentController {
     }
 
     @Operation(
-            summary = "Get student by ID",
-            description = "Returns detailed information of a specific student"
+            summary = "Obter estudante por ID",
+            description = "Retorna informações detalhadas de um estudante específico"
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Student found",
+                    description = "Estudante encontrado",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = StudentDTO.class)
@@ -83,18 +83,18 @@ public class StudentController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
-                    description = "Student not found",
+                    description = "Estudante não encontrado",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<StudentDTO>> getStudentById(
-            @Parameter(description = "Student ID", required = true)
+            @Parameter(description = "ID do Estudante", required = true)
             @PathVariable Long id) {
 
         logger.info("Request to get student with ID: {}", id);
@@ -112,13 +112,13 @@ public class StudentController {
     }
 
     @Operation(
-            summary = "Update student",
-            description = "Updates the information of an existing student"
+            summary = "Atualizar estudante",
+            description = "Atualiza as informações de um estudante existente"
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Student updated successfully",
+                    description = "Estudante atualizado com sucesso",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = StudentDTO.class)
@@ -126,23 +126,23 @@ public class StudentController {
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
-                    description = "Student not found",
+                    description = "Estudante não encontrado",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
-                    description = "Invalid data",
+                    description = "Dados inválidos",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<StudentDTO>> updateStudent(
-            @Parameter(description = "Student ID", required = true)
+            @Parameter(description = "ID do Estudante", required = true)
             @PathVariable Long id,
             @Valid @RequestBody StudentDTO studentDTO) {
 
@@ -162,36 +162,36 @@ public class StudentController {
     }
 
     @Operation(
-            summary = "Delete student",
-            description = "Deletes a student from the system. Requires ADMIN role. " +
-                    "If the student has access records, it will be marked as INACTIVE instead of being deleted."
+            summary = "Excluir estudante",
+            description = "Exclui um estudante do sistema. Requer papel ADMIN. " +
+                    "Se o estudante tiver registros de acesso, será marcado como INATIVO em vez de ser excluído."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Student deleted successfully",
+                    description = "Estudante excluído com sucesso",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
-                    description = "Student not found",
+                    description = "Estudante não encontrado",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "403",
-                    description = "Access denied - ADMIN role required",
+                    description = "Acesso negado - papel ADMIN necessário",
                     content = @Content(mediaType = "application/json")
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401",
-                    description = "Unauthenticated",
+                    description = "Não autenticado",
                     content = @Content(mediaType = "application/json")
             )
     })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteStudent(
-            @Parameter(description = "Student ID", required = true)
+            @Parameter(description = "ID do Estudante", required = true)
             @PathVariable Long id) {
 
         logger.info("Request to delete student with ID: {}", id);
