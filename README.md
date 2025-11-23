@@ -313,32 +313,489 @@ export DATABASE_PASSWORD=your_db_password
 # Run application
 java -jar target/space-management-0.0.1-SNAPSHOT.jar
 ```
+# 🐳 Docker Deployment
 
-### Docker (Optional)
+## Quick Start with Docker Compose
+
+The easiest way to run the complete stack (Application + PostgreSQL + Monitoring):
+
+### 1. Start All Services
+
+```bash
+# Start all services in detached mode
+docker-compose up -d
+
+# View logs
+docker-compose logs -f app
+
+# Check service status
+docker-compose ps
+```
+
+The following services will be available:
+
+| Service | URL | Credentials |
+|---------|-----|-------------|
+| **Application** | http://localhost:8081 | - |
+| **Swagger UI** | http://localhost:8081/swagger-ui.html | - |
+| **PostgreSQL** | localhost:5432 | postgres/postgres |
+| **Prometheus** | http://localhost:9090 | - |
+| **Grafana** | http://localhost:3000 | admin/admin |
+| **SonarQube** | http://localhost:9000 | admin/admin |
+
+### 2. Stop All Services
+
+```bash
+# Stop services
+docker-compose down
+
+# Stop and remove volumes (⚠️ deletes all data)
+docker-compose down -v
+```
+
+### 3. Rebuild After Code Changes
+
+```bash
+# Rebuild only the application
+docker-compose up -d --build app
+
+# Rebuild everything
+docker-compose up -d --build
+```
+
+---
+
+## Docker Standalone (Without Docker Compose)
+
+If you prefer to run only the application container:
+
+### Step 1: Build the JAR
+
+```bash
+mvn clean package -DskipTests
+```
+
+### Step 2: Build Docker Image
+
+```bash
+docker build -t space-management:latest .
+```
+
+### Step 3: Run Container
+
+#### Option A: Development Mode (with external PostgreSQL)
+
+```bash
+docker run -d \
+  --name space-management \
+  -p 8081:8081 \
+  -e SPRING_PROFILES_ACTIVE=dev \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/education_spaces_db \
+  -e SPRING_DATASOURCE_USERNAME=postgres \
+  -e SPRING_DATASOURCE_PASSWORD=your_password \
+  -e JWT_SECRET=mySecretKeyForEducationSpaceManagementSystemThatIsLongEnoughForDevelopment12345 \
+  space-management:latest
+```
+
+#### Option B: Production Mode
+
+```bash
+docker run -d \
+  --name space-management \
+  -p 8081:8081 \
+  -e SPRING_PROFILES_ACTIVE=prod \
+  -e DATABASE_URL=jdbc:postgresql://your-db-host:5432/education_spaces_db \
+  -e DATABASE_USERNAME=postgres \
+  -e DATABASE_PASSWORD=your_secure_password \
+  -e JWT_SECRET=your_very_secure_jwt_secret_key_at_least_32_characters_long \
+  -e JWT_EXPIRATION=3600000 \
+  space-management:latest
+```
+
+### Step 4: Verify Container is Running
+
+```bash
+# Check container status
+docker ps
+
+# View logs
+docker logs -f space-management
+
+# Check health
+curl http://localhost:8081/actuator/health
+```
+
+### Step 5: Stop and Remove Container
+
+```bash
+# Stop container
+docker stop space-management
+
+# Remove container
+docker rm space-management
+```
+
+---
+
+## Dockerfile Reference
+
+The project uses a **multi-stage build** for optimal image size:
 
 ```dockerfile
-FROM eclipse-temurin:21-jre-alpine
+# Build stage
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY target/*.jar app.jar
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-ENV SPRING_PROFILES_ACTIVE=prod
-ENV SERVER_PORT=8080
-
-EXPOSE 8080
+# Runtime stage
+FROM eclipse-temurin:21-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+ENV TZ=UTC
 ```
+
+**Image Specifications:**
+- **Base Image**: Eclipse Temurin 21 (Alpine)
+- **Build Tool**: Maven 3.9
+- **Exposed Port**: 8081
+- **Entry Point**: Java JAR execution
+
+---
+
+## Docker Compose Services
+
+The `docker-compose.yaml` includes the following services:
+
+### 1. PostgreSQL Database
+```yaml
+Service: postgres
+Port: 5432
+Database: education_spaces_db
+User: postgres
+Password: postgres
+```
+
+### 2. Application
+```yaml
+Service: app
+Port: 8081
+Profile: dev (default)
+Health Check: Enabled
+```
+
+### 3. SonarQube (Code Quality)
+```yaml
+Service: sonarqube
+Port: 9000
+Database: sonarqube-db (PostgreSQL)
+```
+
+### 4. Prometheus (Metrics Collection)
+```yaml
+Service: prometheus
+Port: 9090
+Config: ./prometheus.yml
+```
+
+### 5. Grafana (Metrics Visualization)
+```yaml
+Service: grafana
+Port: 3000
+User: admin
+Password: admin
+```
+
+---
+
+## Environment Variables
+
+### Required Variables
+
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `SPRING_PROFILES_ACTIVE` | Active profile (dev/prod) | dev | Yes |
+| `SPRING_DATASOURCE_URL` | Database JDBC URL | - | Yes |
+| `SPRING_DATASOURCE_USERNAME` | Database username | - | Yes |
+| `SPRING_DATASOURCE_PASSWORD` | Database password | - | Yes |
+| `JWT_SECRET` | JWT signing key (min 32 chars) | - | Yes |
+
+### Optional Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `JWT_EXPIRATION` | Token expiration (ms) | 3600000 |
+| `SERVER_PORT` | Server port | 8081 |
+| `TZ` | Timezone | UTC |
+
+---
+
+## Docker Commands Cheatsheet
+
+### Docker Compose Commands
+
+```bash
+# Start all services
+docker-compose up -d
+
+# Start specific service
+docker-compose up -d app
+
+# View logs (all services)
+docker-compose logs -f
+
+# View logs (specific service)
+docker-compose logs -f app
+
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes
+docker-compose down -v
+
+# Restart a service
+docker-compose restart app
+
+# Check service status
+docker-compose ps
+
+# Execute command in container
+docker-compose exec app sh
+
+# Rebuild service
+docker-compose up -d --build app
+```
+
+### Standalone Docker Commands
 
 ```bash
 # Build image
 docker build -t space-management:latest .
 
 # Run container
-docker run -p 8080:8080 \
-  -e JWT_SECRET=your_secret \
-  -e DATABASE_URL=jdbc:postgresql://host.docker.internal:5432/education_spaces_db \
-  -e DATABASE_PASSWORD=your_password \
-  space-management:latest
+docker run -d --name space-management -p 8081:8081 space-management:latest
+
+# Stop container
+docker stop space-management
+
+# Start container
+docker start space-management
+
+# Remove container
+docker rm space-management
+
+# View logs
+docker logs -f space-management
+
+# Execute command in container
+docker exec -it space-management sh
+
+# Inspect container
+docker inspect space-management
+
+# View container stats
+docker stats space-management
 ```
+
+---
+
+## Monitoring Setup with Docker
+
+### 1. Configure Prometheus
+
+The `prometheus.yml` file should contain:
+
+```yaml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'space-management'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['app:8081']
+```
+
+### 2. Access Monitoring Tools
+
+After running `docker-compose up -d`:
+
+**Prometheus:**
+- URL: http://localhost:9090
+- Query example: `space_entry_total`
+
+**Grafana:**
+- URL: http://localhost:3000
+- Username: `admin`
+- Password: `admin`
+- Add Prometheus data source: `http://prometheus:9090`
+
+**Application Metrics:**
+- URL: http://localhost:8081/actuator/prometheus
+
+---
+
+## Troubleshooting
+
+### Container Won't Start
+
+```bash
+# Check logs
+docker-compose logs app
+
+# Common issues:
+# 1. Database not ready
+docker-compose logs postgres
+
+# 2. Port already in use
+lsof -i :8081
+kill -9 <PID>
+
+# 3. Missing environment variables
+docker-compose config
+```
+
+### Database Connection Issues
+
+```bash
+# Check if PostgreSQL is running
+docker-compose ps postgres
+
+# Test database connection
+docker-compose exec postgres psql -U postgres -d education_spaces_db
+
+# Check network connectivity
+docker-compose exec app ping postgres
+```
+
+### Application Health Check Failed
+
+```bash
+# Check health endpoint
+curl http://localhost:8081/actuator/health
+
+# Check if application is responding
+docker-compose exec app wget -O- http://localhost:8081/actuator/health
+
+# View detailed logs
+docker-compose logs -f --tail=100 app
+```
+
+### Reset Everything
+
+```bash
+# Stop all services and remove volumes
+docker-compose down -v
+
+# Remove all related images
+docker images | grep space-management | awk '{print $3}' | xargs docker rmi -f
+
+# Start fresh
+docker-compose up -d --build
+```
+
+---
+
+## Production Deployment
+
+### Using Docker in Production
+
+For production deployment, create a `docker-compose.prod.yaml`:
+
+```yaml
+version: '3.8'
+
+services:
+  app:
+    image: space-management:1.0.0
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DATABASE_URL: jdbc:postgresql://prod-db-host:5432/education_spaces_db
+      DATABASE_USERNAME: ${DB_USER}
+      DATABASE_PASSWORD: ${DB_PASS}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: 3600000
+    ports:
+      - "8080:8081"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+```
+
+Run with:
+```bash
+docker-compose -f docker-compose.prod.yaml up -d
+```
+
+### Best Practices for Production
+
+1. **Use specific image tags**, not `latest`
+2. **Set resource limits** (CPU, memory)
+3. **Enable health checks**
+4. **Use secrets management** for sensitive data
+5. **Enable restart policies**
+6. **Use external managed databases** (not containers)
+7. **Set up log aggregation** (ELK, Splunk)
+8. **Monitor with Prometheus + Grafana**
+9. **Use reverse proxy** (Nginx, Traefik)
+10. **Enable HTTPS/TLS**
+
+---
+
+## Docker Image Size Optimization
+
+Current image size: ~300MB
+
+To further reduce size:
+
+```dockerfile
+# Use JRE instead of JDK
+FROM eclipse-temurin:21-jre-alpine
+
+# Or use custom JRE with jlink
+FROM eclipse-temurin:21-jdk-alpine AS jlink
+RUN jlink --add-modules java.base,java.logging,java.sql \
+    --output /custom-jre \
+    --compress=2 \
+    --no-header-files \
+    --no-man-pages
+
+FROM alpine:latest
+COPY --from=jlink /custom-jre /opt/jre
+COPY --from=build /app/target/*.jar app.jar
+ENTRYPOINT ["/opt/jre/bin/java", "-jar", "app.jar"]
+```
+
+---
+
+## Summary
+
+✅ **Quick Start**: `docker-compose up -d`  
+✅ **Access App**: http://localhost:8081  
+✅ **Access Swagger**: http://localhost:8081/swagger-ui.html  
+✅ **View Metrics**: http://localhost:9090 (Prometheus)  
+✅ **Visualize Data**: http://localhost:3000 (Grafana)  
+✅ **Code Quality**: http://localhost:9000 (SonarQube)  
+✅ **Stop All**: `docker-compose down`
+
+For more details, see the [docker-compose.yaml](docker-compose.yaml) file.
 
 ## 📚 API Documentation
 
