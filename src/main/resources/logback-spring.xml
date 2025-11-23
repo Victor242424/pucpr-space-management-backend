@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Configuración de ruta de logs -->
+    <property name="LOG_PATH" value="${LOG_PATH:-./logs}" />
+    <property name="APP_NAME" value="space-management" />
+
+    <!-- Patrón de log simple -->
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n" />
+
+    <!-- ========================================= -->
+    <!-- APPENDER PARA CONSOLA -->
+    <!-- ========================================= -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ========================================= -->
+    <!-- APPENDER PARA ARCHIVO GENERAL -->
+    <!-- ========================================= -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+
+        <!-- Política de rotación por tamaño y fecha -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ========================================= -->
+    <!-- APPENDER PARA ERRORES -->
+    <!-- ========================================= -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}-error.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ========================================= -->
+    <!-- CONFIGURACIÓN POR PAQUETES -->
+    <!-- ========================================= -->
+
+    <!-- Logger para el paquete principal -->
+    <logger name="dev.victor_rivas.space_management" level="INFO" />
+
+    <!-- Logger específico para AuthController -->
+    <logger name="dev.victor_rivas.space_management.controller.AuthController" level="INFO" />
+
+    <!-- Logger para Spring Framework -->
+    <logger name="org.springframework" level="INFO" />
+
+    <!-- Logger para Spring Security -->
+    <logger name="org.springframework.security" level="INFO" />
+
+    <!-- Logger para Hibernate -->
+    <logger name="org.hibernate" level="WARN" />
+
+    <!-- ========================================= -->
+    <!-- CONFIGURACIÓN POR PERFIL -->
+    <!-- ========================================= -->
+
+    <!-- Perfil de DESARROLLO -->
+    <springProfile name="dev">
+        <logger name="dev.victor_rivas.space_management" level="DEBUG" />
+        <logger name="org.springframework.web" level="DEBUG" />
+        <logger name="org.hibernate.SQL" level="DEBUG" />
+    </springProfile>
+
+    <!-- Perfil de TEST -->
+    <springProfile name="test">
+        <logger name="dev.victor_rivas.space_management" level="DEBUG" />
+    </springProfile>
+
+    <!-- Perfil de PRODUCCIÓN -->
+    <springProfile name="prod">
+        <logger name="dev.victor_rivas.space_management" level="INFO" />
+        <logger name="org.springframework" level="WARN" />
+        <logger name="org.hibernate" level="WARN" />
+    </springProfile>
+
+    <!-- ========================================= -->
+    <!-- LOGGER ROOT -->
+    <!-- ========================================= -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+        <appender-ref ref="ERROR_FILE" />
+    </root>
+
+</configuration>
