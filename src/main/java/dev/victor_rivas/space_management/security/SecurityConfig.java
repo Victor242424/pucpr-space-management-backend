@@ -1,5 +1,6 @@
 package dev.victor_rivas.space_management.security;
 
+import dev.victor_rivas.space_management.config.CorsProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -30,6 +30,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
+    private final CorsProperties corsProperties;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -41,13 +42,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        // É público apenas para facilitar os testes;
-                        // em um projeto normal, deveria exigir autenticação em algumas rotas.
                         .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)) // Esto devuelve 401
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter,
@@ -78,10 +77,24 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setExposedHeaders(List.of("Authorization"));
+
+        // Configurar orígenes permitidos desde CorsProperties
+        configuration.setAllowedOrigins(corsProperties.getAllowedOrigins());
+
+        // Configurar métodos permitidos desde CorsProperties
+        configuration.setAllowedMethods(corsProperties.getAllowedMethods());
+
+        // Configurar headers permitidos desde CorsProperties
+        configuration.setAllowedHeaders(corsProperties.getAllowedHeaders());
+
+        // Configurar headers expuestos desde CorsProperties
+        configuration.setExposedHeaders(corsProperties.getExposedHeaders());
+
+        // Configurar credenciales desde CorsProperties
+        configuration.setAllowCredentials(corsProperties.isAllowCredentials());
+
+        // Configurar tiempo de caché desde CorsProperties
+        configuration.setMaxAge(corsProperties.getMaxAge());
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
