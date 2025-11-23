@@ -1,175 +1,175 @@
-# 🏫 Space Management System
+# 🏫 Sistema de Gerenciamento de Espaços
 
 [![Java](https://img.shields.io/badge/Java-21-red.svg)](https://openjdk.java.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 
-> REST API for managing educational spaces, student access control, and occupancy reporting
+> API REST para gerenciar espaços educacionais, controle de acesso de estudantes e relatórios de ocupação
 
-## 📋 Table of Contents
+## 📋 Índice
 
-- [Overview](#-overview)
-- [Features](#-features)
-- [Architecture](#-architecture)
-- [Technologies](#-technologies)
-- [Prerequisites](#-prerequisites)
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [Running the Application](#-running-the-application)
-- [API Documentation](#-api-documentation)
-- [Testing](#-testing)
-- [Monitoring](#-monitoring)
-- [Security](#-security)
-- [Project Structure](#-project-structure)
-- [API Endpoints](#-api-endpoints)
-- [Database Schema](#-database-schema)
-- [Contributing](#-contributing)
-- [License](#-license)
+- [Visão Geral](#-visão-geral)
+- [Recursos](#-recursos)
+- [Arquitetura](#-arquitetura)
+- [Tecnologias](#-tecnologias)
+- [Pré-requisitos](#-pré-requisitos)
+- [Instalação](#-instalação)
+- [Configuração](#-configuração)
+- [Executando a Aplicação](#-executando-a-aplicação)
+- [Documentação da API](#-documentação-da-api)
+- [Testes](#-testes)
+- [Monitoramento](#-monitoramento)
+- [Segurança](#-segurança)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Endpoints da API](#-endpoints-da-api)
+- [Esquema do Banco de Dados](#-esquema-do-banco-de-dados)
+- [Contribuindo](#-contribuindo)
+- [Licença](#-licença)
 
-## 🎯 Overview
+## 🎯 Visão Geral
 
-The **Space Management System** is a comprehensive REST API designed to manage educational facilities, track student access to different spaces (classrooms, laboratories, study rooms), and generate detailed occupancy reports.
+O **Sistema de Gerenciamento de Espaços** é uma API REST abrangente projetada para gerenciar instalações educacionais, rastrear o acesso de estudantes a diferentes espaços (salas de aula, laboratórios, salas de estudo) e gerar relatórios detalhados de ocupação.
 
-### Key Capabilities
+### Capacidades Principais
 
-- 👥 **Student Management**: Complete CRUD operations for student records
-- 🏢 **Space Management**: Manage different types of educational spaces
-- 🚪 **Access Control**: Track entry and exit of students in real-time
-- 📊 **Analytics**: Generate occupancy reports and usage statistics
-- 🔐 **Security**: JWT-based authentication and role-based authorization
-- 📈 **Monitoring**: Integrated metrics with Prometheus and actuator endpoints
-- 📚 **Documentation**: Interactive API documentation with Swagger UI
+- 👥 **Gerenciamento de Estudantes**: Operações CRUD completas para registros de estudantes
+- 🏢 **Gerenciamento de Espaços**: Gerenciar diferentes tipos de espaços educacionais
+- 🚪 **Controle de Acesso**: Rastrear entrada e saída de estudantes em tempo real
+- 📊 **Análises**: Gerar relatórios de ocupação e estatísticas de uso
+- 🔐 **Segurança**: Autenticação baseada em JWT e autorização baseada em funções
+- 📈 **Monitoramento**: Métricas integradas com Prometheus e endpoints do actuator
+- 📚 **Documentação**: Documentação interativa da API com Swagger UI
 
-## ✨ Features
+## ✨ Recursos
 
-### Core Features
+### Recursos Principais
 
-- **Multi-Role Authentication**
-    - Student access with limited permissions
-    - Admin access with full management capabilities
-    - JWT token-based authentication
+- **Autenticação Multi-Função**
+    - Acesso de estudante com permissões limitadas
+    - Acesso de administrador com capacidades completas de gerenciamento
+    - Autenticação baseada em token JWT
 
-- **Real-Time Space Tracking**
-    - Automatic occupancy calculation
-    - Maximum capacity validation
-    - Active access monitoring
+- **Rastreamento de Espaços em Tempo Real**
+    - Cálculo automático de ocupação
+    - Validação de capacidade máxima
+    - Monitoramento de acesso ativo
 
-- **Comprehensive Reporting**
-    - Daily, weekly, and monthly statistics
-    - Occupancy rates and trends
-    - Average visit duration
-    - Space utilization metrics
+- **Relatórios Abrangentes**
+    - Estatísticas diárias, semanais e mensais
+    - Taxas e tendências de ocupação
+    - Duração média de visita
+    - Métricas de utilização de espaço
 
-- **Data Integrity**
-    - Soft delete for records with dependencies
-    - Validation of business rules
-    - Transaction management
+- **Integridade de Dados**
+    - Exclusão suave para registros com dependências
+    - Validação de regras de negócio
+    - Gerenciamento de transações
 
-### Technical Features
+### Recursos Técnicos
 
-- RESTful API design
-- OpenAPI 3.0 specification
-- Profile-based configuration (dev, test, prod)
-- Internationalized responses
-- Exception handling
-- Code coverage with JaCoCo
-- Code quality analysis with SonarQube
+- Design de API RESTful
+- Especificação OpenAPI 3.0
+- Configuração baseada em perfis (dev, test, prod)
+- Respostas internacionalizadas
+- Tratamento de exceções
+- Cobertura de código com JaCoCo
+- Análise de qualidade de código com SonarQube
 
-## 🏗️ Architecture
+## 🗂️ Arquitetura
 
-### Layered Architecture
+### Arquitetura em Camadas
 
 ```
 ┌─────────────────────────────────────┐
-│         Presentation Layer          │
+│         Camada de Apresentação      │
 │    (Controllers + DTOs)             │
 ├─────────────────────────────────────┤
-│         Business Layer              │
+│         Camada de Negócio           │
 │         (Services)                  │
 ├─────────────────────────────────────┤
-│         Persistence Layer           │
+│         Camada de Persistência      │
 │    (Repositories + Entities)        │
 ├─────────────────────────────────────┤
-│         Database Layer              │
+│         Camada de Banco de Dados    │
 │         (PostgreSQL)                │
 └─────────────────────────────────────┘
 ```
 
-### Design Patterns
+### Padrões de Design
 
-- **Repository Pattern**: Data access abstraction
-- **DTO Pattern**: Data transfer between layers
-- **Service Layer**: Business logic encapsulation
-- **Dependency Injection**: Inversion of control
-- **Builder Pattern**: Object construction
+- **Padrão Repository**: Abstração de acesso a dados
+- **Padrão DTO**: Transferência de dados entre camadas
+- **Camada de Serviço**: Encapsulamento de lógica de negócio
+- **Injeção de Dependência**: Inversão de controle
+- **Padrão Builder**: Construção de objetos
 
-## 🛠️ Technologies
+## 🛠️ Tecnologias
 
 ### Backend
 
-- **Java 21**: Latest LTS version
-- **Spring Boot 3.2.0**: Application framework
-- **Spring Data JPA**: Data persistence
-- **Spring Security**: Authentication & Authorization
-- **PostgreSQL**: Production database
-- **H2**: In-memory database for testing
+- **Java 21**: Versão LTS mais recente
+- **Spring Boot 3.2.0**: Framework de aplicação
+- **Spring Data JPA**: Persistência de dados
+- **Spring Security**: Autenticação e Autorização
+- **PostgreSQL**: Banco de dados de produção
+- **H2**: Banco de dados em memória para testes
 
-### Security
+### Segurança
 
-- **JWT (jjwt 0.12.3)**: Token-based authentication
-- **BCrypt**: Password hashing
-- **Spring Security**: Security framework
+- **JWT (jjwt 0.12.3)**: Autenticação baseada em token
+- **BCrypt**: Hash de senhas
+- **Spring Security**: Framework de segurança
 
-### Documentation
+### Documentação
 
-- **SpringDoc OpenAPI 3 (2.3.0)**: API documentation
-- **Swagger UI**: Interactive API testing
+- **SpringDoc OpenAPI 3 (2.3.0)**: Documentação da API
+- **Swagger UI**: Testes interativos da API
 
-### Monitoring & Metrics
+### Monitoramento e Métricas
 
-- **Spring Actuator**: Application monitoring
-- **Micrometer**: Metrics collection
-- **Prometheus**: Metrics storage and querying
+- **Spring Actuator**: Monitoramento da aplicação
+- **Micrometer**: Coleta de métricas
+- **Prometheus**: Armazenamento e consulta de métricas
 
-### Testing
+### Testes
 
-- **JUnit 5**: Unit testing framework
-- **Mockito**: Mocking framework
-- **AssertJ**: Fluent assertions
-- **Spring Security Test**: Security testing
+- **JUnit 5**: Framework de testes unitários
+- **Mockito**: Framework de simulação
+- **AssertJ**: Asserções fluentes
+- **Spring Security Test**: Testes de segurança
 
-### Code Quality
+### Qualidade de Código
 
-- **JaCoCo**: Code coverage
-- **SonarQube**: Code quality analysis
-- **Lombok**: Boilerplate reduction
+- **JaCoCo**: Cobertura de código
+- **SonarQube**: Análise de qualidade de código
+- **Lombok**: Redução de código boilerplate
 
-### Build & Development
+### Build e Desenvolvimento
 
-- **Maven**: Build automation
-- **Git**: Version control
+- **Maven**: Automação de build
+- **Git**: Controle de versão
 
-## 📦 Prerequisites
+## 📦 Pré-requisitos
 
-Before you begin, ensure you have the following installed:
+Antes de começar, certifique-se de ter o seguinte instalado:
 
-- **Java Development Kit (JDK) 21** or higher
+- **Java Development Kit (JDK) 21** ou superior
   ```bash
   java -version
-  # Should output: openjdk version "21" or higher
+  # Deve exibir: openjdk version "21" ou superior
   ```
 
 - **Maven 3.8+**
   ```bash
   mvn -version
-  # Should output: Apache Maven 3.8.x or higher
+  # Deve exibir: Apache Maven 3.8.x ou superior
   ```
 
-- **PostgreSQL 14+** (for production)
+- **PostgreSQL 14+** (para produção)
   ```bash
   psql --version
-  # Should output: psql (PostgreSQL) 14.x or higher
+  # Deve exibir: psql (PostgreSQL) 14.x ou superior
   ```
 
 - **Git**
@@ -177,213 +177,214 @@ Before you begin, ensure you have the following installed:
   git --version
   ```
 
-## 🚀 Installation
+## 🚀 Instalação
 
-### 1. Clone the Repository
+### 1. Clonar o Repositório
 
 ```bash
 git clone https://github.com/victor-rivas-dev/space-management.git
 cd space-management
 ```
 
-### 2. Database Setup
+### 2. Configuração do Banco de Dados
 
-#### For Development (PostgreSQL)
+#### Para Desenvolvimento (PostgreSQL)
 
 ```bash
-# Create database
+# Criar banco de dados
 createdb education_spaces_db
 
-# Or using psql
+# Ou usando psql
 psql -U postgres
 CREATE DATABASE education_spaces_db;
 \q
 ```
 
-#### For Testing (H2)
+#### Para Testes (H2)
 
-No setup required - H2 runs in-memory automatically during tests.
+Nenhuma configuração necessária - H2 é executado em memória automaticamente durante os testes.
 
-### 3. Install Dependencies
+### 3. Instalar Dependências
 
 ```bash
 mvn clean install
 ```
 
-## ⚙️ Configuration
+## ⚙️ Configuração
 
-### Environment Variables
+### Variáveis de Ambiente
 
-Create a `.env` file in the root directory (for production):
+Crie um arquivo `.env` no diretório raiz (para produção):
 
 ```bash
-# Database Configuration
+# Configuração do Banco de Dados
 DATABASE_URL=jdbc:postgresql://localhost:5432/education_spaces_db
 DATABASE_USERNAME=postgres
-DATABASE_PASSWORD=your_password
+DATABASE_PASSWORD=sua_senha
 
-# JWT Configuration
-JWT_SECRET=your_very_secure_jwt_secret_key_at_least_32_characters_long
+# Configuração JWT
+JWT_SECRET=sua_chave_secreta_jwt_muito_segura_com_pelo_menos_32_caracteres
 JWT_EXPIRATION=3600000
 
-# CORS Configuration
-CORS_ALLOWED_ORIGIN_1=https://yourdomain.com
-CORS_ALLOWED_ORIGIN_2=https://www.yourdomain.com
+# Configuração CORS
+CORS_ALLOWED_ORIGIN_1=https://seudominio.com
+CORS_ALLOWED_ORIGIN_2=https://www.seudominio.com
 
-# Server Configuration
+# Configuração do Servidor
 SERVER_PORT=8080
 
-# Swagger Configuration (optional)
+# Configuração Swagger (opcional)
 SWAGGER_ENABLED=false
 ```
 
-### Application Profiles
+### Perfis da Aplicação
 
-The application supports three profiles:
+A aplicação suporta três perfis:
 
-#### Development Profile (`dev`)
+#### Perfil de Desenvolvimento (`dev`)
 
-**File**: `src/main/resources/application-dev.yaml`
+**Arquivo**: `src/main/resources/application-dev.yaml`
 
-- Uses PostgreSQL database
-- Swagger UI enabled
-- Detailed logging
-- CORS permissive for local development
-- JWT token valid for 24 hours
+- Usa banco de dados PostgreSQL
+- Swagger UI habilitado
+- Log detalhado
+- CORS permissivo para desenvolvimento local
+- Token JWT válido por 24 horas
 
 ```bash
-# Activate dev profile
+# Ativar perfil dev
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-#### Test Profile (`test`)
+#### Perfil de Teste (`test`)
 
-**File**: `src/main/resources/application-test.yaml`
+**Arquivo**: `src/main/resources/application-test.yaml`
 
-- Uses H2 in-memory database
-- Swagger disabled
-- Auto-activated during tests
-- CORS fully open for testing
+- Usa banco de dados H2 em memória
+- Swagger desabilitado
+- Ativado automaticamente durante os testes
+- CORS totalmente aberto para testes
 
 ```bash
-# Run tests
+# Executar testes
 mvn test
 ```
 
-#### Production Profile (`prod`)
+#### Perfil de Produção (`prod`)
 
-**File**: `src/main/resources/application-prod.yaml`
+**Arquivo**: `src/main/resources/application-prod.yaml`
 
-- Uses PostgreSQL with environment variables
-- Swagger disabled by default
-- Minimal logging
-- Restricted CORS
-- JWT token valid for 1 hour
-- Connection pooling optimized
+- Usa PostgreSQL com variáveis de ambiente
+- Swagger desabilitado por padrão
+- Log mínimo
+- CORS restrito
+- Token JWT válido por 1 hora
+- Pool de conexões otimizado
 
 ```bash
-# Run in production
+# Executar em produção
 export SPRING_PROFILES_ACTIVE=prod
 java -jar target/space-management-0.0.1-SNAPSHOT.jar
 ```
 
-## 🏃 Running the Application
+## 🏃 Executando a Aplicação
 
-### Development Mode
+### Modo de Desenvolvimento
 
 ```bash
-# Using Maven
+# Usando Maven
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
-# Or
+# Ou
 mvn clean package
 java -jar target/space-management-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
 ```
 
-The application will start on `http://localhost:8081`
+A aplicação iniciará em `http://localhost:8081`
 
-### Production Mode
+### Modo de Produção
 
 ```bash
-# Set environment variables
+# Definir variáveis de ambiente
 export SPRING_PROFILES_ACTIVE=prod
-export JWT_SECRET=your_secret_key
-export DATABASE_PASSWORD=your_db_password
+export JWT_SECRET=sua_chave_secreta
+export DATABASE_PASSWORD=sua_senha_bd
 
-# Run application
+# Executar aplicação
 java -jar target/space-management-0.0.1-SNAPSHOT.jar
 ```
-# 🐳 Docker Deployment
 
-## Quick Start with Docker Compose
+# 🐳 Implantação com Docker
 
-The easiest way to run the complete stack (Application + PostgreSQL + Monitoring):
+## Início Rápido com Docker Compose
 
-### 1. Start All Services
+A maneira mais fácil de executar a stack completa (Aplicação + PostgreSQL + Monitoramento):
+
+### 1. Iniciar Todos os Serviços
 
 ```bash
-# Start all services in detached mode
+# Iniciar todos os serviços em modo destacado
 docker-compose up -d
 
-# View logs
+# Ver logs
 docker-compose logs -f app
 
-# Check service status
+# Verificar status dos serviços
 docker-compose ps
 ```
 
-The following services will be available:
+Os seguintes serviços estarão disponíveis:
 
-| Service | URL | Credentials |
+| Serviço | URL | Credenciais |
 |---------|-----|-------------|
-| **Application** | http://localhost:8081 | - |
+| **Aplicação** | http://localhost:8081 | - |
 | **Swagger UI** | http://localhost:8081/swagger-ui.html | - |
 | **PostgreSQL** | localhost:5432 | postgres/postgres |
 | **Prometheus** | http://localhost:9090 | - |
 | **Grafana** | http://localhost:3000 | admin/admin |
 | **SonarQube** | http://localhost:9000 | admin/admin |
 
-### 2. Stop All Services
+### 2. Parar Todos os Serviços
 
 ```bash
-# Stop services
+# Parar serviços
 docker-compose down
 
-# Stop and remove volumes (⚠️ deletes all data)
+# Parar e remover volumes (⚠️ deleta todos os dados)
 docker-compose down -v
 ```
 
-### 3. Rebuild After Code Changes
+### 3. Reconstruir Após Mudanças no Código
 
 ```bash
-# Rebuild only the application
+# Reconstruir apenas a aplicação
 docker-compose up -d --build app
 
-# Rebuild everything
+# Reconstruir tudo
 docker-compose up -d --build
 ```
 
 ---
 
-## Docker Standalone (Without Docker Compose)
+## Docker Standalone (Sem Docker Compose)
 
-If you prefer to run only the application container:
+Se preferir executar apenas o contêiner da aplicação:
 
-### Step 1: Build the JAR
+### Passo 1: Construir o JAR
 
 ```bash
 mvn clean package -DskipTests
 ```
 
-### Step 2: Build Docker Image
+### Passo 2: Construir Imagem Docker
 
 ```bash
 docker build -t space-management:latest .
 ```
 
-### Step 3: Run Container
+### Passo 3: Executar Contêiner
 
-#### Option A: Development Mode (with external PostgreSQL)
+#### Opção A: Modo de Desenvolvimento (com PostgreSQL externo)
 
 ```bash
 docker run -d \
@@ -392,64 +393,64 @@ docker run -d \
   -e SPRING_PROFILES_ACTIVE=dev \
   -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/education_spaces_db \
   -e SPRING_DATASOURCE_USERNAME=postgres \
-  -e SPRING_DATASOURCE_PASSWORD=your_password \
-  -e JWT_SECRET=mySecretKeyForEducationSpaceManagementSystemThatIsLongEnoughForDevelopment12345 \
+  -e SPRING_DATASOURCE_PASSWORD=sua_senha \
+  -e JWT_SECRET=minhaChaveSecretaParaSistemaDeGerenciamentoDeEspacosEducacionaisQueSejaSuficientementeLongaParaDesenvolvimento12345 \
   space-management:latest
 ```
 
-#### Option B: Production Mode
+#### Opção B: Modo de Produção
 
 ```bash
 docker run -d \
   --name space-management \
   -p 8081:8081 \
   -e SPRING_PROFILES_ACTIVE=prod \
-  -e DATABASE_URL=jdbc:postgresql://your-db-host:5432/education_spaces_db \
+  -e DATABASE_URL=jdbc:postgresql://seu-host-bd:5432/education_spaces_db \
   -e DATABASE_USERNAME=postgres \
-  -e DATABASE_PASSWORD=your_secure_password \
-  -e JWT_SECRET=your_very_secure_jwt_secret_key_at_least_32_characters_long \
+  -e DATABASE_PASSWORD=sua_senha_segura \
+  -e JWT_SECRET=sua_chave_secreta_jwt_muito_segura_com_pelo_menos_32_caracteres \
   -e JWT_EXPIRATION=3600000 \
   space-management:latest
 ```
 
-### Step 4: Verify Container is Running
+### Passo 4: Verificar se o Contêiner está Executando
 
 ```bash
-# Check container status
+# Verificar status do contêiner
 docker ps
 
-# View logs
+# Ver logs
 docker logs -f space-management
 
-# Check health
+# Verificar saúde
 curl http://localhost:8081/actuator/health
 ```
 
-### Step 5: Stop and Remove Container
+### Passo 5: Parar e Remover Contêiner
 
 ```bash
-# Stop container
+# Parar contêiner
 docker stop space-management
 
-# Remove container
+# Remover contêiner
 docker rm space-management
 ```
 
 ---
 
-## Dockerfile Reference
+## Referência do Dockerfile
 
-The project uses a **multi-stage build** for optimal image size:
+O projeto usa uma **construção multi-estágio** para tamanho de imagem otimizado:
 
 ```dockerfile
-# Build stage
+# Estágio de construção
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Runtime stage
+# Estágio de execução
 FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
@@ -459,155 +460,155 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 ENV TZ=UTC
 ```
 
-**Image Specifications:**
-- **Base Image**: Eclipse Temurin 21 (Alpine)
-- **Build Tool**: Maven 3.9
-- **Exposed Port**: 8081
-- **Entry Point**: Java JAR execution
+**Especificações da Imagem:**
+- **Imagem Base**: Eclipse Temurin 21 (Alpine)
+- **Ferramenta de Build**: Maven 3.9
+- **Porta Exposta**: 8081
+- **Ponto de Entrada**: Execução do JAR Java
 
 ---
 
-## Docker Compose Services
+## Serviços do Docker Compose
 
-The `docker-compose.yaml` includes the following services:
+O `docker-compose.yaml` inclui os seguintes serviços:
 
-### 1. PostgreSQL Database
+### 1. Banco de Dados PostgreSQL
 ```yaml
-Service: postgres
-Port: 5432
-Database: education_spaces_db
-User: postgres
-Password: postgres
+Serviço: postgres
+Porta: 5432
+Banco de dados: education_spaces_db
+Usuário: postgres
+Senha: postgres
 ```
 
-### 2. Application
+### 2. Aplicação
 ```yaml
-Service: app
-Port: 8081
-Profile: dev (default)
-Health Check: Enabled
+Serviço: app
+Porta: 8081
+Perfil: dev (padrão)
+Health Check: Habilitado
 ```
 
-### 3. SonarQube (Code Quality)
+### 3. SonarQube (Qualidade de Código)
 ```yaml
-Service: sonarqube
-Port: 9000
-Database: sonarqube-db (PostgreSQL)
+Serviço: sonarqube
+Porta: 9000
+Banco de dados: sonarqube-db (PostgreSQL)
 ```
 
-### 4. Prometheus (Metrics Collection)
+### 4. Prometheus (Coleta de Métricas)
 ```yaml
-Service: prometheus
-Port: 9090
+Serviço: prometheus
+Porta: 9090
 Config: ./prometheus.yml
 ```
 
-### 5. Grafana (Metrics Visualization)
+### 5. Grafana (Visualização de Métricas)
 ```yaml
-Service: grafana
-Port: 3000
-User: admin
-Password: admin
+Serviço: grafana
+Porta: 3000
+Usuário: admin
+Senha: admin
 ```
 
 ---
 
-## Environment Variables
+## Variáveis de Ambiente
 
-### Required Variables
+### Variáveis Obrigatórias
 
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `SPRING_PROFILES_ACTIVE` | Active profile (dev/prod) | dev | Yes |
-| `SPRING_DATASOURCE_URL` | Database JDBC URL | - | Yes |
-| `SPRING_DATASOURCE_USERNAME` | Database username | - | Yes |
-| `SPRING_DATASOURCE_PASSWORD` | Database password | - | Yes |
-| `JWT_SECRET` | JWT signing key (min 32 chars) | - | Yes |
+| Variável | Descrição | Padrão | Obrigatória |
+|----------|-----------|---------|-------------|
+| `SPRING_PROFILES_ACTIVE` | Perfil ativo (dev/prod) | dev | Sim |
+| `SPRING_DATASOURCE_URL` | URL JDBC do banco de dados | - | Sim |
+| `SPRING_DATASOURCE_USERNAME` | Nome de usuário do banco | - | Sim |
+| `SPRING_DATASOURCE_PASSWORD` | Senha do banco de dados | - | Sim |
+| `JWT_SECRET` | Chave de assinatura JWT (mín 32 caracteres) | - | Sim |
 
-### Optional Variables
+### Variáveis Opcionais
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `JWT_EXPIRATION` | Token expiration (ms) | 3600000 |
-| `SERVER_PORT` | Server port | 8081 |
-| `TZ` | Timezone | UTC |
+| Variável | Descrição | Padrão |
+|----------|-----------|---------|
+| `JWT_EXPIRATION` | Expiração do token (ms) | 3600000 |
+| `SERVER_PORT` | Porta do servidor | 8081 |
+| `TZ` | Fuso horário | UTC |
 
 ---
 
-## Docker Commands Cheatsheet
+## Comandos Docker - Guia Rápido
 
-### Docker Compose Commands
+### Comandos Docker Compose
 
 ```bash
-# Start all services
+# Iniciar todos os serviços
 docker-compose up -d
 
-# Start specific service
+# Iniciar serviço específico
 docker-compose up -d app
 
-# View logs (all services)
+# Ver logs (todos os serviços)
 docker-compose logs -f
 
-# View logs (specific service)
+# Ver logs (serviço específico)
 docker-compose logs -f app
 
-# Stop all services
+# Parar todos os serviços
 docker-compose down
 
-# Stop and remove volumes
+# Parar e remover volumes
 docker-compose down -v
 
-# Restart a service
+# Reiniciar um serviço
 docker-compose restart app
 
-# Check service status
+# Verificar status dos serviços
 docker-compose ps
 
-# Execute command in container
+# Executar comando no contêiner
 docker-compose exec app sh
 
-# Rebuild service
+# Reconstruir serviço
 docker-compose up -d --build app
 ```
 
-### Standalone Docker Commands
+### Comandos Docker Standalone
 
 ```bash
-# Build image
+# Construir imagem
 docker build -t space-management:latest .
 
-# Run container
+# Executar contêiner
 docker run -d --name space-management -p 8081:8081 space-management:latest
 
-# Stop container
+# Parar contêiner
 docker stop space-management
 
-# Start container
+# Iniciar contêiner
 docker start space-management
 
-# Remove container
+# Remover contêiner
 docker rm space-management
 
-# View logs
+# Ver logs
 docker logs -f space-management
 
-# Execute command in container
+# Executar comando no contêiner
 docker exec -it space-management sh
 
-# Inspect container
+# Inspecionar contêiner
 docker inspect space-management
 
-# View container stats
+# Ver estatísticas do contêiner
 docker stats space-management
 ```
 
 ---
 
-## Monitoring Setup with Docker
+## Configuração de Monitoramento com Docker
 
-### 1. Configure Prometheus
+### 1. Configurar Prometheus
 
-The `prometheus.yml` file should contain:
+O arquivo `prometheus.yml` deve conter:
 
 ```yaml
 global:
@@ -621,91 +622,91 @@ scrape_configs:
       - targets: ['app:8081']
 ```
 
-### 2. Access Monitoring Tools
+### 2. Acessar Ferramentas de Monitoramento
 
-After running `docker-compose up -d`:
+Após executar `docker-compose up -d`:
 
 **Prometheus:**
 - URL: http://localhost:9090
-- Query example: `space_entry_total`
+- Exemplo de consulta: `space_entry_total`
 
 **Grafana:**
 - URL: http://localhost:3000
-- Username: `admin`
-- Password: `admin`
-- Add Prometheus data source: `http://prometheus:9090`
+- Nome de usuário: `admin`
+- Senha: `admin`
+- Adicionar fonte de dados Prometheus: `http://prometheus:9090`
 
-**Application Metrics:**
+**Métricas da Aplicação:**
 - URL: http://localhost:8081/actuator/prometheus
 
 ---
 
-## Troubleshooting
+## Solução de Problemas
 
-### Container Won't Start
+### Contêiner Não Inicia
 
 ```bash
-# Check logs
+# Verificar logs
 docker-compose logs app
 
-# Common issues:
-# 1. Database not ready
+# Problemas comuns:
+# 1. Banco de dados não está pronto
 docker-compose logs postgres
 
-# 2. Port already in use
+# 2. Porta já em uso
 lsof -i :8081
 kill -9 <PID>
 
-# 3. Missing environment variables
+# 3. Variáveis de ambiente ausentes
 docker-compose config
 ```
 
-### Database Connection Issues
+### Problemas de Conexão com Banco de Dados
 
 ```bash
-# Check if PostgreSQL is running
+# Verificar se PostgreSQL está executando
 docker-compose ps postgres
 
-# Test database connection
+# Testar conexão com banco de dados
 docker-compose exec postgres psql -U postgres -d education_spaces_db
 
-# Check network connectivity
+# Verificar conectividade de rede
 docker-compose exec app ping postgres
 ```
 
-### Application Health Check Failed
+### Falha no Health Check da Aplicação
 
 ```bash
-# Check health endpoint
+# Verificar endpoint de saúde
 curl http://localhost:8081/actuator/health
 
-# Check if application is responding
+# Verificar se aplicação está respondendo
 docker-compose exec app wget -O- http://localhost:8081/actuator/health
 
-# View detailed logs
+# Ver logs detalhados
 docker-compose logs -f --tail=100 app
 ```
 
-### Reset Everything
+### Resetar Tudo
 
 ```bash
-# Stop all services and remove volumes
+# Parar todos os serviços e remover volumes
 docker-compose down -v
 
-# Remove all related images
+# Remover todas as imagens relacionadas
 docker images | grep space-management | awk '{print $3}' | xargs docker rmi -f
 
-# Start fresh
+# Começar do zero
 docker-compose up -d --build
 ```
 
 ---
 
-## Production Deployment
+## Implantação em Produção
 
-### Using Docker in Production
+### Usando Docker em Produção
 
-For production deployment, create a `docker-compose.prod.yaml`:
+Para implantação em produção, crie um `docker-compose.prod.yaml`:
 
 ```yaml
 version: '3.8'
@@ -739,37 +740,37 @@ services:
           memory: 1G
 ```
 
-Run with:
+Execute com:
 ```bash
 docker-compose -f docker-compose.prod.yaml up -d
 ```
 
-### Best Practices for Production
+### Melhores Práticas para Produção
 
-1. **Use specific image tags**, not `latest`
-2. **Set resource limits** (CPU, memory)
-3. **Enable health checks**
-4. **Use secrets management** for sensitive data
-5. **Enable restart policies**
-6. **Use external managed databases** (not containers)
-7. **Set up log aggregation** (ELK, Splunk)
-8. **Monitor with Prometheus + Grafana**
-9. **Use reverse proxy** (Nginx, Traefik)
-10. **Enable HTTPS/TLS**
+1. **Use tags de imagem específicas**, não `latest`
+2. **Defina limites de recursos** (CPU, memória)
+3. **Habilite health checks**
+4. **Use gerenciamento de secrets** para dados sensíveis
+5. **Habilite políticas de reinicialização**
+6. **Use bancos de dados gerenciados externos** (não contêineres)
+7. **Configure agregação de logs** (ELK, Splunk)
+8. **Monitore com Prometheus + Grafana**
+9. **Use proxy reverso** (Nginx, Traefik)
+10. **Habilite HTTPS/TLS**
 
 ---
 
-## Docker Image Size Optimization
+## Otimização do Tamanho da Imagem Docker
 
-Current image size: ~300MB
+Tamanho atual da imagem: ~300MB
 
-To further reduce size:
+Para reduzir ainda mais o tamanho:
 
 ```dockerfile
-# Use JRE instead of JDK
+# Use JRE ao invés de JDK
 FROM eclipse-temurin:21-jre-alpine
 
-# Or use custom JRE with jlink
+# Ou use JRE customizado com jlink
 FROM eclipse-temurin:21-jdk-alpine AS jlink
 RUN jlink --add-modules java.base,java.logging,java.sql \
     --output /custom-jre \
@@ -785,130 +786,130 @@ ENTRYPOINT ["/opt/jre/bin/java", "-jar", "app.jar"]
 
 ---
 
-## Summary
+## Resumo
 
-✅ **Quick Start**: `docker-compose up -d`  
-✅ **Access App**: http://localhost:8081  
-✅ **Access Swagger**: http://localhost:8081/swagger-ui.html  
-✅ **View Metrics**: http://localhost:9090 (Prometheus)  
-✅ **Visualize Data**: http://localhost:3000 (Grafana)  
-✅ **Code Quality**: http://localhost:9000 (SonarQube)  
-✅ **Stop All**: `docker-compose down`
+✅ **Início Rápido**: `docker-compose up -d`  
+✅ **Acessar App**: http://localhost:8081  
+✅ **Acessar Swagger**: http://localhost:8081/swagger-ui.html  
+✅ **Ver Métricas**: http://localhost:9090 (Prometheus)  
+✅ **Visualizar Dados**: http://localhost:3000 (Grafana)  
+✅ **Qualidade de Código**: http://localhost:9000 (SonarQube)  
+✅ **Parar Tudo**: `docker-compose down`
 
-For more details, see the [docker-compose.yaml](docker-compose.yaml) file.
+Para mais detalhes, veja o arquivo [docker-compose.yaml](docker-compose.yaml).
 
-## 📚 API Documentation
+## 📚 Documentação da API
 
 ### Swagger UI
 
-Access the interactive API documentation:
+Acesse a documentação interativa da API:
 
 ```
 http://localhost:8081/swagger-ui.html
 ```
 
-### OpenAPI Specification
+### Especificação OpenAPI
 
 - **JSON**: `http://localhost:8081/api-docs`
 - **YAML**: `http://localhost:8081/api-docs.yaml`
 
-### Quick Start with Swagger
+### Início Rápido com Swagger
 
-1. Open Swagger UI in your browser
-2. Navigate to **Authentication** → **POST /api/auth/login**
-3. Click **"Try it out"**
-4. Enter credentials:
+1. Abra o Swagger UI no seu navegador
+2. Navegue para **Authentication** → **POST /api/auth/login**
+3. Clique em **"Try it out"**
+4. Insira as credenciais:
    ```json
    {
      "username": "admin",
      "password": "admin123"
    }
    ```
-5. Click **"Execute"** and copy the token
-6. Click **"Authorize"** button (🔓) at the top
-7. Enter: `Bearer {your-token}`
-8. Now you can test all protected endpoints!
+5. Clique em **"Execute"** e copie o token
+6. Clique no botão **"Authorize"** (🔒) no topo
+7. Insira: `Bearer {seu-token}`
+8. Agora você pode testar todos os endpoints protegidos!
 
-### Postman Collection
+### Coleção Postman
 
-Import the OpenAPI spec into Postman:
+Importe a especificação OpenAPI no Postman:
 
 ```bash
-# Download spec
+# Baixar especificação
 curl http://localhost:8081/api-docs > space-management-api.json
 
-# Import in Postman: File → Import → Upload Files
+# Importar no Postman: File → Import → Upload Files
 ```
 
-## 🧪 Testing
+## 🧪 Testes
 
-### Run All Tests
+### Executar Todos os Testes
 
 ```bash
 mvn test
 ```
 
-### Run Specific Test Class
+### Executar Classe de Teste Específica
 
 ```bash
 mvn test -Dtest=StudentServiceTest
 ```
 
-### Run Integration Tests
+### Executar Testes de Integração
 
 ```bash
 mvn test -Dtest=*IntegrationTest
 ```
 
-### Generate Coverage Report
+### Gerar Relatório de Cobertura
 
 ```bash
 mvn clean test jacoco:report
 ```
 
-View report at: `target/site/jacoco/index.html`
+Ver relatório em: `target/site/jacoco/index.html`
 
-### Code Quality Analysis
+### Análise de Qualidade de Código
 
 ```bash
-# Start SonarQube (if running locally)
+# Iniciar SonarQube (se executando localmente)
 docker run -d --name sonarqube -p 9000:9000 sonarqube:latest
 
-# Run analysis
+# Executar análise
 mvn clean verify sonar:sonar
 ```
 
-View report at: `http://localhost:9000`
+Ver relatório em: `http://localhost:9000`
 
-### Test Coverage Summary
+### Resumo de Cobertura de Testes
 
-The project maintains the following coverage thresholds:
+O projeto mantém os seguintes limites de cobertura:
 
-- **Line Coverage**: Minimum 50%
-- **Excludes**: DTOs, Entities, Configuration classes
+- **Cobertura de Linha**: Mínimo 50%
+- **Exclui**: DTOs, Entities, classes de Configuração
 
-## 📊 Monitoring
+## 📊 Monitoramento
 
-### Actuator Endpoints
+### Endpoints do Actuator
 
-Available at `http://localhost:8081/actuator`
+Disponível em `http://localhost:8081/actuator`
 
-| Endpoint | Description |
-|----------|-------------|
-| `/actuator/health` | Application health status |
-| `/actuator/info` | Application information |
-| `/actuator/metrics` | Application metrics |
-| `/actuator/prometheus` | Prometheus metrics |
-| `/actuator/env` | Environment properties |
-| `/actuator/loggers` | Logger configuration |
+| Endpoint | Descrição |
+|----------|-----------|
+| `/actuator/health` | Status de saúde da aplicação |
+| `/actuator/info` | Informações da aplicação |
+| `/actuator/metrics` | Métricas da aplicação |
+| `/actuator/prometheus` | Métricas Prometheus |
+| `/actuator/env` | Propriedades do ambiente |
+| `/actuator/loggers` | Configuração de loggers |
 
-### Health Check
+### Verificação de Saúde
 
 ```bash
 curl http://localhost:8081/actuator/health
 ```
 
-**Response:**
+**Resposta:**
 ```json
 {
   "status": "UP",
@@ -928,71 +929,71 @@ curl http://localhost:8081/actuator/health
 }
 ```
 
-### Metrics
+### Métricas
 
 ```bash
-# View all metrics
+# Ver todas as métricas
 curl http://localhost:8081/actuator/metrics
 
-# Specific metric
+# Métrica específica
 curl http://localhost:8081/actuator/metrics/space.entry.total
 ```
 
-### Prometheus Integration
+### Integração com Prometheus
 
-The application exposes Prometheus-compatible metrics:
+A aplicação expõe métricas compatíveis com Prometheus:
 
 ```bash
 curl http://localhost:8081/actuator/prometheus
 ```
 
-**Sample metrics:**
-- `space_entry_total`: Total number of space entries
-- `space_exit_total`: Total number of space exits
-- `students_active_total`: Current active students
-- `spaces_available_total`: Available spaces
-- `access_active_current`: Current active accesses
+**Métricas de exemplo:**
+- `space_entry_total`: Número total de entradas em espaços
+- `space_exit_total`: Número total de saídas de espaços
+- `students_active_total`: Estudantes ativos atualmente
+- `spaces_available_total`: Espaços disponíveis
+- `access_active_current`: Acessos ativos atuais
 
-## 🔐 Security
+## 🔐 Segurança
 
-### Authentication Flow
+### Fluxo de Autenticação
 
-1. **Register** a new student:
+1. **Registrar** um novo estudante:
    ```bash
    POST /api/auth/register
    ```
 
-2. **Login** to get JWT token:
+2. **Login** para obter token JWT:
    ```bash
    POST /api/auth/login
    ```
 
-3. **Use token** in subsequent requests:
+3. **Usar token** em requisições subsequentes:
    ```bash
    Authorization: Bearer {token}
    ```
 
-### User Roles
+### Funções de Usuário
 
-| Role | Permissions |
-|------|-------------|
-| **STUDENT** | View own data, register access, view reports |
-| **ADMIN** | Full access to all endpoints |
+| Função | Permissões |
+|--------|------------|
+| **STUDENT** | Ver dados próprios, registrar acesso, ver relatórios |
+| **ADMIN** | Acesso completo a todos os endpoints |
 
-### Security Features
+### Recursos de Segurança
 
-- ✅ Password hashing with BCrypt
-- ✅ JWT token-based authentication
-- ✅ Token expiration (1 hour in prod, 24 hours in dev)
-- ✅ Role-based access control (RBAC)
-- ✅ CORS protection
-- ✅ CSRF protection disabled (stateless REST API)
-- ✅ SQL injection prevention (JPA/Hibernate)
-- ✅ Input validation
+- ✅ Hash de senha com BCrypt
+- ✅ Autenticação baseada em token JWT
+- ✅ Expiração de token (1 hora em prod, 24 horas em dev)
+- ✅ Controle de acesso baseado em funções (RBAC)
+- ✅ Proteção CORS
+- ✅ Proteção CSRF desabilitada (API REST stateless)
+- ✅ Prevenção de injeção SQL (JPA/Hibernate)
+- ✅ Validação de entrada
 
-### Default Users
+### Usuários Padrão
 
-For development/testing purposes:
+Para fins de desenvolvimento/teste:
 
 ```json
 {
@@ -1002,36 +1003,36 @@ For development/testing purposes:
 }
 ```
 
-**⚠️ Warning**: Change default credentials in production!
+**⚠️ Aviso**: Altere as credenciais padrão em produção!
 
-## 📁 Project Structure
+## 📁 Estrutura do Projeto
 
 ```
 space-management/
 ├── src/
 │   ├── main/
 │   │   ├── java/dev/victor_rivas/space_management/
-│   │   │   ├── config/              # Configuration classes
+│   │   │   ├── config/              # Classes de configuração
 │   │   │   │   ├── AppInfoContributor.java
 │   │   │   │   ├── CorsProperties.java
 │   │   │   │   ├── CustomHealthIndicator.java
 │   │   │   │   ├── MetricsConfig.java
 │   │   │   │   └── OpenApiConfig.java
-│   │   │   ├── constant/            # Constants
+│   │   │   ├── constant/            # Constantes
 │   │   │   │   └── ExceptionMessagesConstants.java
-│   │   │   ├── controller/          # REST Controllers
+│   │   │   ├── controller/          # Controllers REST
 │   │   │   │   ├── AccessRecordController.java
 │   │   │   │   ├── AuthController.java
 │   │   │   │   ├── ReportController.java
 │   │   │   │   ├── SpaceController.java
 │   │   │   │   └── StudentController.java
-│   │   │   ├── enums/               # Enumerations
+│   │   │   ├── enums/               # Enumerações
 │   │   │   │   ├── AccessStatus.java
 │   │   │   │   ├── Role.java
 │   │   │   │   ├── SpaceStatus.java
 │   │   │   │   ├── SpaceType.java
 │   │   │   │   └── StudentStatus.java
-│   │   │   ├── exception/           # Exception handling
+│   │   │   ├── exception/           # Tratamento de exceções
 │   │   │   │   ├── BusinessException.java
 │   │   │   │   ├── ErrorResponse.java
 │   │   │   │   ├── GlobalExceptionHandler.java
@@ -1048,22 +1049,22 @@ space-management/
 │   │   │   │   │   ├── OccupancyReportDTO.java
 │   │   │   │   │   ├── SpaceDTO.java
 │   │   │   │   │   └── StudentDTO.java
-│   │   │   │   └── entity/          # JPA Entities
+│   │   │   │   └── entity/          # Entidades JPA
 │   │   │   │       ├── AccessRecord.java
 │   │   │   │       ├── Space.java
 │   │   │   │       ├── Student.java
 │   │   │   │       └── User.java
-│   │   │   ├── repository/          # Data Access Layer
+│   │   │   ├── repository/          # Camada de Acesso a Dados
 │   │   │   │   ├── AccessRecordRepository.java
 │   │   │   │   ├── SpaceRepository.java
 │   │   │   │   ├── StudentRepository.java
 │   │   │   │   └── UserRepository.java
-│   │   │   ├── security/            # Security Configuration
+│   │   │   ├── security/            # Configuração de Segurança
 │   │   │   │   ├── CustomUserDetailsService.java
 │   │   │   │   ├── JwtAuthenticationFilter.java
 │   │   │   │   ├── JwtTokenProvider.java
 │   │   │   │   └── SecurityConfig.java
-│   │   │   ├── service/             # Business Logic
+│   │   │   ├── service/             # Lógica de Negócio
 │   │   │   │   ├── AccessRecordService.java
 │   │   │   │   ├── AuthService.java
 │   │   │   │   ├── MetricsService.java
@@ -1072,85 +1073,85 @@ space-management/
 │   │   │   │   └── StudentService.java
 │   │   │   └── SpaceManagementApplication.java
 │   │   └── resources/
-│   │       ├── application.yaml           # Base configuration
-│   │       ├── application-dev.yaml       # Development config
-│   │       ├── application-test.yaml      # Test config
-│   │       └── application-prod.yaml      # Production config
+│   │       ├── application.yaml           # Configuração base
+│   │       ├── application-dev.yaml       # Configuração dev
+│   │       ├── application-test.yaml      # Configuração test
+│   │       └── application-prod.yaml      # Configuração prod
 │   └── test/
 │       └── java/dev/victor_rivas/space_management/
-│           ├── integration/               # Integration tests
+│           ├── integration/               # Testes de integração
 │           │   ├── AccessRecordControllerIntegrationTest.java
 │           │   ├── AuthControllerIntegrationTest.java
 │           │   ├── ReportControllerIntegrationTest.java
 │           │   ├── SpaceControllerIntegrationTest.java
 │           │   └── StudentControllerIntegrationTest.java
 │           └── SpaceManagementApplicationTests.java
-├── .env.example                      # Environment variables template
+├── .env.example                      # Template de variáveis de ambiente
 ├── .gitignore
-├── pom.xml                          # Maven configuration
-├── prometheus.yml                   # Prometheus configuration
-├── sonar-project.properties         # SonarQube configuration
+├── pom.xml                          # Configuração Maven
+├── prometheus.yml                   # Configuração Prometheus
+├── sonar-project.properties         # Configuração SonarQube
 └── README.md
 ```
 
-## 🌐 API Endpoints
+## 🌐 Endpoints da API
 
-### Authentication
+### Autenticação
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/auth/login` | Login and get JWT token | Public |
-| POST | `/api/auth/register` | Register new student | Public |
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| POST | `/api/auth/login` | Login e obter token JWT | Público |
+| POST | `/api/auth/register` | Registrar novo estudante | Público |
 
-### Students
+### Estudantes
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/api/students` | Get all students | ADMIN |
-| GET | `/api/students/{id}` | Get student by ID | Authenticated |
-| PUT | `/api/students/{id}` | Update student | Authenticated |
-| DELETE | `/api/students/{id}` | Delete student | ADMIN |
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| GET | `/api/students` | Obter todos os estudantes | ADMIN |
+| GET | `/api/students/{id}` | Obter estudante por ID | Autenticado |
+| PUT | `/api/students/{id}` | Atualizar estudante | Autenticado |
+| DELETE | `/api/students/{id}` | Deletar estudante | ADMIN |
 
-### Spaces
+### Espaços
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/api/spaces` | Get all spaces | Authenticated |
-| GET | `/api/spaces/{id}` | Get space by ID | Authenticated |
-| POST | `/api/spaces` | Create new space | ADMIN |
-| PUT | `/api/spaces/{id}` | Update space | ADMIN |
-| DELETE | `/api/spaces/{id}` | Delete space | ADMIN |
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| GET | `/api/spaces` | Obter todos os espaços | Autenticado |
+| GET | `/api/spaces/{id}` | Obter espaço por ID | Autenticado |
+| POST | `/api/spaces` | Criar novo espaço | ADMIN |
+| PUT | `/api/spaces/{id}` | Atualizar espaço | ADMIN |
+| DELETE | `/api/spaces/{id}` | Deletar espaço | ADMIN |
 
-### Access Records
+### Registros de Acesso
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/access/entry` | Register entry | Authenticated |
-| POST | `/api/access/exit` | Register exit | Authenticated |
-| GET | `/api/access` | Get all records | ADMIN |
-| GET | `/api/access/student/{id}` | Get records by student | Authenticated |
-| GET | `/api/access/space/{id}` | Get records by space | Authenticated |
-| GET | `/api/access/active` | Get active records | Authenticated |
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| POST | `/api/access/entry` | Registrar entrada | Autenticado |
+| POST | `/api/access/exit` | Registrar saída | Autenticado |
+| GET | `/api/access` | Obter todos os registros | ADMIN |
+| GET | `/api/access/student/{id}` | Obter registros por estudante | Autenticado |
+| GET | `/api/access/space/{id}` | Obter registros por espaço | Autenticado |
+| GET | `/api/access/active` | Obter registros ativos | Autenticado |
 
-### Reports
+### Relatórios
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/api/reports/occupancy` | Get occupancy for all spaces | Authenticated |
-| GET | `/api/reports/occupancy/space/{id}` | Get occupancy by space | Authenticated |
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| GET | `/api/reports/occupancy` | Obter ocupação de todos os espaços | Autenticado |
+| GET | `/api/reports/occupancy/space/{id}` | Obter ocupação por espaço | Autenticado |
 
-### Example Requests
+### Exemplos de Requisições
 
-#### Register Student
+#### Registrar Estudante
 ```bash
 curl -X POST http://localhost:8081/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "registrationNumber": "STU001",
-    "name": "John Doe",
-    "email": "john.doe@university.edu",
-    "password": "password123",
-    "phoneNumber": "+1234567890"
+    "name": "João Silva",
+    "email": "joao.silva@universidade.edu",
+    "password": "senha123",
+    "phoneNumber": "+5511987654321"
   }'
 ```
 
@@ -1160,26 +1161,26 @@ curl -X POST http://localhost:8081/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "STU001",
-    "password": "password123"
+    "password": "senha123"
   }'
 ```
 
-#### Create Space (Admin)
+#### Criar Espaço (Admin)
 ```bash
 curl -X POST http://localhost:8081/api/spaces \
   -H "Authorization: Bearer {token}" \
   -H "Content-Type: application/json" \
   -d '{
     "code": "LAB-001",
-    "name": "Computer Laboratory",
+    "name": "Laboratório de Computação",
     "type": "LABORATORY",
     "capacity": 30,
-    "building": "Building A",
-    "floor": "1st Floor"
+    "building": "Prédio A",
+    "floor": "1º Andar"
   }'
 ```
 
-#### Register Entry
+#### Registrar Entrada
 ```bash
 curl -X POST http://localhost:8081/api/access/entry \
   -H "Authorization: Bearer {token}" \
@@ -1187,13 +1188,13 @@ curl -X POST http://localhost:8081/api/access/entry \
   -d '{
     "studentId": 1,
     "spaceId": 1,
-    "notes": "Study session"
+    "notes": "Sessão de estudo"
   }'
 ```
 
-## 🗄️ Database Schema
+## 🗄️ Esquema do Banco de Dados
 
-### Entity Relationship Diagram
+### Diagrama de Relacionamento de Entidades
 
 ```
 ┌─────────────┐       ┌──────────────┐       ┌─────────────┐
@@ -1224,7 +1225,7 @@ curl -X POST http://localhost:8081/api/access/entry \
 └─────────────┘
 ```
 
-### Tables
+### Tabelas
 
 #### students
 ```sql
@@ -1290,103 +1291,85 @@ CREATE TABLE users (
 );
 ```
 
-## 🤝 Contributing
+## 🤝 Contribuindo
 
-Contributions are welcome! Please follow these steps:
+Contribuições são bem-vindas! Por favor, siga estes passos:
 
-### 1. Fork the Repository
+### 1. Fork do Repositório
 
-Click the "Fork" button at the top right of the repository page.
+Clique no botão "Fork" no canto superior direito da página do repositório.
 
-### 2. Clone Your Fork
+### 2. Clone seu Fork
 
 ```bash
-git clone https://github.com/your-username/space-management.git
+git clone https://github.com/seu-usuario/space-management.git
 cd space-management
 ```
 
-### 3. Create a Branch
+### 3. Criar um Branch
 
 ```bash
-git checkout -b feature/your-feature-name
+git checkout -b feature/nome-da-sua-feature
 ```
 
-### 4. Make Your Changes
+### 4. Faça suas Alterações
 
-- Write clean, documented code
-- Follow existing code style
-- Add tests for new features
-- Update documentation
+- Escreva código limpo e documentado
+- Siga o estilo de código existente
+- Adicione testes para novas funcionalidades
+- Atualize a documentação
 
-### 5. Run Tests
+### 5. Execute os Testes
 
 ```bash
 mvn clean test
 ```
 
-### 6. Commit Your Changes
+### 6. Commit suas Alterações
 
 ```bash
 git add .
-git commit -m "Add: description of your changes"
+git commit -m "Add: descrição das suas alterações"
 ```
 
-### 7. Push to Your Fork
+### 7. Push para seu Fork
 
 ```bash
-git push origin feature/your-feature-name
+git push origin feature/nome-da-sua-feature
 ```
 
-### 8. Create a Pull Request
+### 8. Criar um Pull Request
 
-Go to the original repository and create a pull request from your fork.
+Vá para o repositório original e crie um pull request a partir do seu fork.
 
-### Coding Standards
+### Padrões de Codificação
 
-- **Java**: Follow Java Code Conventions
-- **Naming**: Use descriptive names for classes, methods, and variables
-- **Comments**: Document complex logic and public APIs
-- **Tests**: Maintain minimum 50% code coverage
-- **Commits**: Use clear, descriptive commit messages
+- **Java**: Siga as Convenções de Código Java
+- **Nomenclatura**: Use nomes descritivos para classes, métodos e variáveis
+- **Comentários**: Documente lógica complexa e APIs públicas
+- **Testes**: Mantenha no mínimo 50% de cobertura de código
+- **Commits**: Use mensagens de commit claras e descritivas
 
-## 📄 License
+## 📄 Licença
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+Este projeto está licenciado sob a Licença Apache 2.0 - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
 ```
 Copyright 2024 Victor Rivas
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Licenciado sob a Licença Apache, Versão 2.0 (a "Licença");
+você não pode usar este arquivo exceto em conformidade com a Licença.
+Você pode obter uma cópia da Licença em
 
     http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+A menos que exigido por lei aplicável ou acordado por escrito, o software
+distribuído sob a Licença é distribuído "COMO ESTÁ",
+SEM GARANTIAS OU CONDIÇÕES DE QUALQUER TIPO, expressas ou implícitas.
+Consulte a Licença para o idioma específico que rege as permissões e
+limitações sob a Licença.
 ```
 
-## 👥 Authors
+## 👥 Autores
 
-- **Victor Rivas** - *Initial work* - [@victor-rivas-dev](https://github.com/victor-rivas-dev)
-
-## 🗺️ Roadmap
-
-### Version 1.1 (Planned)
-
-- [ ] WebSocket support for real-time updates
-- [ ] Email notifications
-- [ ] PDF report generation
-- [ ] Advanced filtering and search
-- [ ] Space reservation system
-
-### Version 2.0 (Future)
-
-- [ ] Mobile application
-- [ ] QR code access control
-- [ ] Integration with university systems
-- [ ] Machine learning for occupancy prediction
-- [ ] Multi-tenancy support
+- **Victor Rivas** - *Trabalho inicial* - [@victor-rivas-dev](https://github.com/victor-rivas-dev)
