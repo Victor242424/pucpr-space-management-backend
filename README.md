@@ -316,63 +316,258 @@ java -jar target/space-management-0.0.1-SNAPSHOT.jar
 
 # 🐳 Implantação com Docker
 
+## Arquitetura Docker Compose
+
+O projeto utiliza uma arquitetura modular com três arquivos Docker Compose separados por responsabilidade:
+
+- **docker-compose.db.yaml**: Banco de dados PostgreSQL e pgAdmin
+- **docker-compose.app.yaml**: Aplicação Spring Boot
+- **docker-compose.monitoring.yaml**: SonarQube, Prometheus e Grafana
+
+Todos os serviços compartilham a mesma rede `space-network` para comunicação entre contêineres.
+
 ## Início Rápido com Docker Compose
 
-A maneira mais fácil de executar a stack completa (Aplicação + PostgreSQL + Monitoramento):
+### 1. Criar a Rede Compartilhada
 
-### 1. Iniciar Todos os Serviços
+Primeiro, crie a rede Docker que será compartilhada por todos os serviços:
 
-```bash
-# Iniciar todos os serviços em modo destacado
-docker-compose up -d
-
-# Ver logs
-docker-compose logs -f app
-
-# Verificar status dos serviços
-docker-compose ps
-```
-**Nota**: Certifique-se de que a rede `space-network` existe antes de executar:
 ```bash
 docker network create space-network
 ```
 
-Os seguintes serviços estarão disponíveis:
+### 2. Iniciar os Serviços
 
-| Serviço | URL | Credenciais |
-|---------|-----|-------------|
-| **Aplicação** | http://localhost:8081 | - |
-| **Swagger UI** | http://localhost:8081/swagger-ui.html | - |
-| **PostgreSQL** | localhost:5432 | postgres/postgres |
-| **Prometheus** | http://localhost:9090 | - |
-| **Grafana** | http://localhost:3000 | admin/admin |
-| **SonarQube** | http://localhost:9000 | admin/admin |
-
-### 2. Parar Todos os Serviços
+Inicie os serviços na seguinte ordem recomendada:
 
 ```bash
-# Parar serviços
-docker-compose down
+# 1. Iniciar banco de dados e pgAdmin
+docker-compose -f docker-compose.db.yaml up -d
 
-# Parar e remover volumes (⚠️ deleta todos os dados)
-docker-compose down -v
+# 2. Iniciar aplicação (aguarda o banco estar pronto)
+docker-compose -f docker-compose.app.yaml up -d
+
+# 3. Iniciar ferramentas de monitoramento e análise
+docker-compose -f docker-compose.monitoring.yaml up -d
 ```
 
-### 3. Reconstruir Após Mudanças no Código
+**Ou inicie todos de uma vez:**
+```bash
+docker-compose -f docker-compose.db.yaml -f docker-compose.app.yaml -f docker-compose.monitoring.yaml up -d
+```
+
+### 3. Verificar Status dos Serviços
 
 ```bash
-# Reconstruir apenas a aplicação
-docker-compose up -d --build app
+# Verificar todos os contêineres em execução
+docker ps
 
-# Reconstruir tudo
-docker-compose up -d --build
+# Verificar serviços específicos
+docker-compose -f docker-compose.db.yaml ps
+docker-compose -f docker-compose.app.yaml ps
+docker-compose -f docker-compose.monitoring.yaml ps
+```
+
+### 4. Acessar os Serviços
+
+Os seguintes serviços estarão disponíveis:
+
+| Serviço | URL | Credenciais | Arquivo |
+|---------|-----|-------------|---------|
+| **Aplicação** | http://localhost:8081 | - | docker-compose.app.yaml |
+| **Swagger UI** | http://localhost:8081/swagger-ui.html | - | docker-compose.app.yaml |
+| **PostgreSQL** | localhost:5432 | postgres/postgres | docker-compose.db.yaml |
+| **pgAdmin** | http://localhost:8082 | admin@admin.com/admin123 | docker-compose.db.yaml |
+| **Prometheus** | http://localhost:9090 | - | docker-compose.monitoring.yaml |
+| **Grafana** | http://localhost:3000 | admin/admin | docker-compose.monitoring.yaml |
+| **SonarQube** | http://localhost:9000 | admin/admin | docker-compose.monitoring.yaml |
+
+### 5. Ver Logs
+
+```bash
+# Logs da aplicação
+docker-compose -f docker-compose.app.yaml logs -f
+
+# Logs do banco de dados
+docker-compose -f docker-compose.db.yaml logs -f postgres
+
+# Logs de todos os serviços de monitoramento
+docker-compose -f docker-compose.monitoring.yaml logs -f
+```
+
+### 6. Parar os Serviços
+
+```bash
+# Parar serviços individualmente
+docker-compose -f docker-compose.app.yaml down
+docker-compose -f docker-compose.monitoring.yaml down
+docker-compose -f docker-compose.db.yaml down
+
+# Ou parar todos de uma vez
+docker-compose -f docker-compose.db.yaml -f docker-compose.app.yaml -f docker-compose.monitoring.yaml down
+```
+
+**⚠️ Atenção:** Para remover também os volumes (dados serão perdidos):
+```bash
+docker-compose -f docker-compose.db.yaml down -v
+docker-compose -f docker-compose.monitoring.yaml down -v
+```
+
+---
+
+## Detalhes dos Arquivos Docker Compose
+
+### 📊 docker-compose.db.yaml
+
+Gerencia o banco de dados PostgreSQL e a ferramenta de administração pgAdmin.
+
+**Serviços incluídos:**
+- `postgres`: Banco de dados principal da aplicação
+- `pgadmin`: Interface web para administração do PostgreSQL
+
+**Volumes:**
+- `postgres_data`: Persistência dos dados do PostgreSQL
+- `pgadmin_data`: Configurações do pgAdmin
+
+**Portas expostas:**
+- `5432`: PostgreSQL
+- `8082`: pgAdmin
+
+**Iniciar apenas banco de dados:**
+```bash
+docker-compose -f docker-compose.db.yaml up -d
+```
+
+### 🚀 docker-compose.app.yaml
+
+Gerencia a aplicação Spring Boot.
+
+**Serviços incluídos:**
+- `app`: Aplicação Space Management
+
+**Variáveis de ambiente:**
+- `SPRING_DATASOURCE_URL`: URL de conexão com PostgreSQL
+- `SPRING_DATASOURCE_USERNAME`: Usuário do banco
+- `SPRING_DATASOURCE_PASSWORD`: Senha do banco
+- `JWT_SECRET`: Chave secreta para tokens JWT
+- `SPRING_PROFILES_ACTIVE`: Perfil ativo (dev/prod)
+
+**Portas expostas:**
+- `8081`: API REST e Swagger UI
+
+**Health check:** Verifica endpoint `/actuator/health` a cada 30 segundos
+
+**Iniciar apenas aplicação:**
+```bash
+docker-compose -f docker-compose.app.yaml up -d
+```
+
+**Reconstruir após alterações no código:**
+```bash
+docker-compose -f docker-compose.app.yaml up -d --build
+```
+
+### 📈 docker-compose.monitoring.yaml
+
+Gerencia ferramentas de monitoramento e análise de qualidade.
+
+**Serviços incluídos:**
+- `sonarqube-db`: Banco de dados PostgreSQL para SonarQube
+- `sonarqube`: Análise de qualidade de código
+- `prometheus`: Coleta de métricas
+- `grafana`: Visualização de métricas
+
+**Volumes:**
+- `sonarqube_postgres_data`: Dados do banco do SonarQube
+- `sonarqube_data`: Dados do SonarQube
+- `sonarqube_extensions`: Extensões do SonarQube
+- `sonarqube_logs`: Logs do SonarQube
+- `prometheus_data`: Dados do Prometheus
+- `grafana_data`: Configurações do Grafana
+
+**Portas expostas:**
+- `9000`: SonarQube
+- `9090`: Prometheus
+- `3000`: Grafana
+
+**Iniciar apenas monitoramento:**
+```bash
+docker-compose -f docker-compose.monitoring.yaml up -d
+```
+
+---
+
+## Fluxos de Trabalho Comuns
+
+### Desenvolvimento Local Completo
+
+```bash
+# 1. Criar rede
+docker network create space-network
+
+# 2. Iniciar infraestrutura
+docker-compose -f docker-compose.db.yaml up -d
+
+# 3. Aguardar banco estar pronto (opcional)
+sleep 10
+
+# 4. Iniciar aplicação
+docker-compose -f docker-compose.app.yaml up -d
+
+# 5. (Opcional) Iniciar ferramentas de monitoramento
+docker-compose -f docker-compose.monitoring.yaml up -d
+```
+
+### Apenas Desenvolvimento da Aplicação
+
+Se você só precisa trabalhar na aplicação:
+
+```bash
+# Iniciar apenas banco de dados
+docker-compose -f docker-compose.db.yaml up -d
+
+# Executar aplicação localmente com Maven
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+### Apenas Análise de Código
+
+Se você só precisa do SonarQube:
+
+```bash
+# Criar rede se não existir
+docker network create space-network
+
+# Iniciar apenas serviços de análise
+docker-compose -f docker-compose.monitoring.yaml up -d sonarqube-db sonarqube
+```
+
+### Resetar Ambiente Completamente
+
+```bash
+# Parar e remover todos os contêineres e volumes
+docker-compose -f docker-compose.db.yaml down -v
+docker-compose -f docker-compose.app.yaml down
+docker-compose -f docker-compose.monitoring.yaml down -v
+
+# Remover rede
+docker network rm space-network
+
+# Limpar imagens não utilizadas
+docker image prune -f
+
+# Começar do zero
+docker network create space-network
+docker-compose -f docker-compose.db.yaml up -d
+docker-compose -f docker-compose.app.yaml up -d --build
+docker-compose -f docker-compose.monitoring.yaml up -d
 ```
 
 ---
 
 ## Docker Standalone (Sem Docker Compose)
 
-Se preferir executar apenas o contêiner da aplicação:
+Se preferir executar apenas o contêiner da aplicação sem Docker Compose:
 
 ### Passo 1: Construir o JAR
 
@@ -388,7 +583,22 @@ docker build -t space-management:latest .
 
 ### Passo 3: Executar Contêiner
 
-#### Opção A: Modo de Desenvolvimento (com PostgreSQL externo)
+#### Opção A: Com PostgreSQL externo
+
+```bash
+docker run -d \
+  --name space-management \
+  --network space-network \
+  -p 8081:8081 \
+  -e SPRING_PROFILES_ACTIVE=dev \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/education_spaces_db \
+  -e SPRING_DATASOURCE_USERNAME=postgres \
+  -e SPRING_DATASOURCE_PASSWORD=postgres \
+  -e JWT_SECRET=mySecretKeyForEducationSpaceManagementSystemThatIsLongEnough \
+  space-management:latest
+```
+
+#### Opção B: Com PostgreSQL no host
 
 ```bash
 docker run -d \
@@ -398,46 +608,27 @@ docker run -d \
   -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/education_spaces_db \
   -e SPRING_DATASOURCE_USERNAME=postgres \
   -e SPRING_DATASOURCE_PASSWORD=sua_senha \
-  -e JWT_SECRET=minhaChaveSecretaParaSistemaDeGerenciamentoDeEspacosEducacionaisQueSejaSuficientementeLongaParaDesenvolvimento12345 \
+  -e JWT_SECRET=mySecretKeyForEducationSpaceManagementSystemThatIsLongEnough \
   space-management:latest
 ```
 
-#### Opção B: Modo de Produção
+### Passo 4: Gerenciar Contêiner
 
 ```bash
-docker run -d \
-  --name space-management \
-  -p 8081:8081 \
-  -e SPRING_PROFILES_ACTIVE=prod \
-  -e DATABASE_URL=jdbc:postgresql://seu-host-bd:5432/education_spaces_db \
-  -e DATABASE_USERNAME=postgres \
-  -e DATABASE_PASSWORD=sua_senha_segura \
-  -e JWT_SECRET=sua_chave_secreta_jwt_muito_segura_com_pelo_menos_32_caracteres \
-  -e JWT_EXPIRATION=3600000 \
-  space-management:latest
-```
-
-### Passo 4: Verificar se o Contêiner está Executando
-
-```bash
-# Verificar status do contêiner
-docker ps
-
 # Ver logs
 docker logs -f space-management
 
-# Verificar saúde
-curl http://localhost:8081/actuator/health
-```
-
-### Passo 5: Parar e Remover Contêiner
-
-```bash
 # Parar contêiner
 docker stop space-management
 
+# Iniciar contêiner
+docker start space-management
+
 # Remover contêiner
 docker rm space-management
+
+# Executar comando no contêiner
+docker exec -it space-management sh
 ```
 
 ---
@@ -460,7 +651,6 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
 ENV TZ=UTC
 ```
 
@@ -468,143 +658,7 @@ ENV TZ=UTC
 - **Imagem Base**: Eclipse Temurin 21 (Alpine)
 - **Ferramenta de Build**: Maven 3.9
 - **Porta Exposta**: 8081
-- **Ponto de Entrada**: Execução do JAR Java
-
----
-
-## Serviços do Docker Compose
-
-O `docker-compose.yaml` inclui os seguintes serviços:
-
-### 1. Banco de Dados PostgreSQL
-```yaml
-Serviço: postgres
-Porta: 5432
-Banco de dados: education_spaces_db
-Usuário: postgres
-Senha: postgres
-```
-
-### 2. Aplicação
-```yaml
-Serviço: app
-Porta: 8081
-Perfil: dev (padrão)
-Health Check: Habilitado
-```
-
-### 3. SonarQube (Qualidade de Código)
-```yaml
-Serviço: sonarqube
-Porta: 9000
-Banco de dados: sonarqube-db (PostgreSQL)
-```
-
-### 4. Prometheus (Coleta de Métricas)
-```yaml
-Serviço: prometheus
-Porta: 9090
-Config: ./prometheus.yml
-```
-
-### 5. Grafana (Visualização de Métricas)
-```yaml
-Serviço: grafana
-Porta: 3000
-Usuário: admin
-Senha: admin
-```
-
----
-
-## Variáveis de Ambiente
-
-### Variáveis Obrigatórias
-
-| Variável | Descrição | Padrão | Obrigatória |
-|----------|-----------|---------|-------------|
-| `SPRING_PROFILES_ACTIVE` | Perfil ativo (dev/prod) | dev | Sim |
-| `SPRING_DATASOURCE_URL` | URL JDBC do banco de dados | - | Sim |
-| `SPRING_DATASOURCE_USERNAME` | Nome de usuário do banco | - | Sim |
-| `SPRING_DATASOURCE_PASSWORD` | Senha do banco de dados | - | Sim |
-| `JWT_SECRET` | Chave de assinatura JWT (mín 32 caracteres) | - | Sim |
-
-### Variáveis Opcionais
-
-| Variável | Descrição | Padrão |
-|----------|-----------|---------|
-| `JWT_EXPIRATION` | Expiração do token (ms) | 3600000 |
-| `SERVER_PORT` | Porta do servidor | 8081 |
-| `TZ` | Fuso horário | UTC |
-
----
-
-## Comandos Docker - Guia Rápido
-
-### Comandos Docker Compose
-
-```bash
-# Iniciar todos os serviços
-docker-compose up -d
-
-# Iniciar serviço específico
-docker-compose up -d app
-
-# Ver logs (todos os serviços)
-docker-compose logs -f
-
-# Ver logs (serviço específico)
-docker-compose logs -f app
-
-# Parar todos os serviços
-docker-compose down
-
-# Parar e remover volumes
-docker-compose down -v
-
-# Reiniciar um serviço
-docker-compose restart app
-
-# Verificar status dos serviços
-docker-compose ps
-
-# Executar comando no contêiner
-docker-compose exec app sh
-
-# Reconstruir serviço
-docker-compose up -d --build app
-```
-
-### Comandos Docker Standalone
-
-```bash
-# Construir imagem
-docker build -t space-management:latest .
-
-# Executar contêiner
-docker run -d --name space-management -p 8081:8081 space-management:latest
-
-# Parar contêiner
-docker stop space-management
-
-# Iniciar contêiner
-docker start space-management
-
-# Remover contêiner
-docker rm space-management
-
-# Ver logs
-docker logs -f space-management
-
-# Executar comando no contêiner
-docker exec -it space-management sh
-
-# Inspecionar contêiner
-docker inspect space-management
-
-# Ver estatísticas do contêiner
-docker stats space-management
-```
+- **Tamanho Aproximado**: ~300MB
 
 ---
 
@@ -612,7 +666,7 @@ docker stats space-management
 
 ### 1. Configurar Prometheus
 
-O arquivo `prometheus.yml` deve conter:
+Certifique-se de ter o arquivo `prometheus.yml` no diretório raiz:
 
 ```yaml
 global:
@@ -628,89 +682,184 @@ scrape_configs:
 
 ### 2. Acessar Ferramentas de Monitoramento
 
-Após executar `docker-compose up -d`:
+Após executar `docker-compose -f docker-compose.monitoring.yaml up -d`:
 
-**Prometheus:**
-- URL: http://localhost:9090
-- Exemplo de consulta: `space_entry_total`
+#### Prometheus
+- **URL**: http://localhost:9090
+- **Exemplo de consulta**: `space_entry_total`
+- **Verificar targets**: http://localhost:9090/targets
 
-**Grafana:**
-- URL: http://localhost:3000
-- Nome de usuário: `admin`
-- Senha: `admin`
-- Adicionar fonte de dados Prometheus: `http://prometheus:9090`
+#### Grafana
+1. **URL**: http://localhost:3000
+2. **Login**: admin/admin
+3. **Adicionar fonte de dados Prometheus**:
+    - Ir para Configuration → Data Sources
+    - Adicionar Prometheus
+    - URL: `http://prometheus:9090`
+    - Clicar em "Save & Test"
 
-**Métricas da Aplicação:**
-- URL: http://localhost:8081/actuator/prometheus
+#### SonarQube
+1. **URL**: http://localhost:9000
+2. **Login inicial**: admin/admin (será solicitado alterar)
+3. **Executar análise**:
+   ```bash
+   mvn clean verify sonar:sonar \
+     -Dsonar.host.url=http://localhost:9000 \
+     -Dsonar.login=seu_token
+   ```
+
+### 3. Métricas da Aplicação
+
+A aplicação expõe métricas em:
+- **Prometheus**: http://localhost:8081/actuator/prometheus
+- **Health**: http://localhost:8081/actuator/health
+- **Metrics**: http://localhost:8081/actuator/metrics
+
+---
+
+## Variáveis de Ambiente
+
+### Variáveis Obrigatórias
+
+| Variável | Descrição | Padrão | Arquivo |
+|----------|-----------|---------|---------|
+| `SPRING_PROFILES_ACTIVE` | Perfil ativo (dev/prod) | dev | app |
+| `SPRING_DATASOURCE_URL` | URL JDBC do banco de dados | - | app |
+| `SPRING_DATASOURCE_USERNAME` | Nome de usuário do banco | postgres | app |
+| `SPRING_DATASOURCE_PASSWORD` | Senha do banco de dados | postgres | app |
+| `JWT_SECRET` | Chave de assinatura JWT (mín 32 chars) | - | app |
+
+### Variáveis Opcionais
+
+| Variável | Descrição | Padrão |
+|----------|-----------|---------|
+| `JWT_EXPIRATION` | Expiração do token (ms) | 3600000 |
+| `SERVER_PORT` | Porta do servidor | 8081 |
+| `TZ` | Fuso horário | UTC |
+
+### Modificar Variáveis de Ambiente
+
+Para alterar variáveis de ambiente, edite o arquivo correspondente e reinicie o serviço:
+
+```bash
+# Editar docker-compose.app.yaml
+# Modificar seção environment
+
+# Reiniciar serviço
+docker-compose -f docker-compose.app.yaml up -d --force-recreate
+```
 
 ---
 
 ## Solução de Problemas
 
-### Contêiner Não Inicia
+### Erro: "network space-network not found"
 
 ```bash
-# Verificar logs
-docker-compose logs app
+# Criar a rede
+docker network create space-network
+```
 
-# Problemas comuns:
-# 1. Banco de dados não está pronto
-docker-compose logs postgres
+### Aplicação não conecta ao banco
 
-# 2. Porta já em uso
+```bash
+# Verificar se PostgreSQL está rodando
+docker-compose -f docker-compose.db.yaml ps
+
+# Ver logs do banco
+docker-compose -f docker-compose.db.yaml logs postgres
+
+# Testar conectividade
+docker-compose -f docker-compose.app.yaml exec app ping postgres
+```
+
+### Porta já em uso
+
+```bash
+# Linux/Mac - encontrar processo
 lsof -i :8081
 kill -9 <PID>
 
-# 3. Variáveis de ambiente ausentes
-docker-compose config
+# Windows
+netstat -ano | findstr :8081
+taskkill /PID <PID> /F
 ```
 
-### Problemas de Conexão com Banco de Dados
+### Health check falhando
 
 ```bash
-# Verificar se PostgreSQL está executando
-docker-compose ps postgres
+# Verificar logs da aplicação
+docker-compose -f docker-compose.app.yaml logs app
 
-# Testar conexão com banco de dados
-docker-compose exec postgres psql -U postgres -d education_spaces_db
+# Testar endpoint manualmente
+docker-compose -f docker-compose.app.yaml exec app wget -O- http://localhost:8081/actuator/health
 
-# Verificar conectividade de rede
-docker-compose exec app ping postgres
+# Aumentar start_period no docker-compose.app.yaml
+# healthcheck:
+#   start_period: 60s
 ```
 
-### Falha no Health Check da Aplicação
+### Prometheus não coleta métricas
 
 ```bash
-# Verificar endpoint de saúde
-curl http://localhost:8081/actuator/health
+# Verificar se aplicação está acessível
+curl http://localhost:8081/actuator/prometheus
 
-# Verificar se aplicação está respondendo
-docker-compose exec app wget -O- http://localhost:8081/actuator/health
+# Verificar configuração do Prometheus
+docker-compose -f docker-compose.monitoring.yaml exec prometheus cat /etc/prometheus/prometheus.yml
 
-# Ver logs detalhados
-docker-compose logs -f --tail=100 app
+# Ver logs do Prometheus
+docker-compose -f docker-compose.monitoring.yaml logs prometheus
+
+# Verificar targets no Prometheus
+# Acessar: http://localhost:9090/targets
 ```
 
-### Resetar Tudo
+### SonarQube não inicia
 
 ```bash
-# Parar todos os serviços e remover volumes
-docker-compose down -v
+# Ver logs
+docker-compose -f docker-compose.monitoring.yaml logs sonarqube
 
-# Remover todas as imagens relacionadas
-docker images | grep space-management | awk '{print $3}' | xargs docker rmi -f
+# Problema comum: limites do sistema
+# Linux - aumentar limites
+sudo sysctl -w vm.max_map_count=262144
+sudo sysctl -w fs.file-max=65536
+
+# Tornar permanente
+echo "vm.max_map_count=262144" | sudo tee -a /etc/sysctl.conf
+echo "fs.file-max=65536" | sudo tee -a /etc/sysctl.conf
+```
+
+### Resetar tudo
+
+```bash
+# Parar todos os serviços
+docker-compose -f docker-compose.db.yaml down -v
+docker-compose -f docker-compose.app.yaml down
+docker-compose -f docker-compose.monitoring.yaml down -v
+
+# Remover rede
+docker network rm space-network
+
+# Limpar imagens
+docker image prune -a -f
 
 # Começar do zero
-docker-compose up -d --build
+docker network create space-network
+docker-compose -f docker-compose.db.yaml up -d
+sleep 10
+docker-compose -f docker-compose.app.yaml up -d --build
+docker-compose -f docker-compose.monitoring.yaml up -d
 ```
 
 ---
 
 ## Implantação em Produção
 
-### Usando Docker em Produção
+### Arquivo de Produção Recomendado
 
-Para implantação em produção, crie um `docker-compose.prod.yaml`:
+Crie um `docker-compose.prod.yaml` para produção:
 
 ```yaml
 version: '3.8'
@@ -718,16 +867,19 @@ version: '3.8'
 services:
   app:
     image: space-management:1.0.0
+    container_name: space_management_app_prod
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      DATABASE_URL: jdbc:postgresql://prod-db-host:5432/education_spaces_db
-      DATABASE_USERNAME: ${DB_USER}
-      DATABASE_PASSWORD: ${DB_PASS}
+      SPRING_DATASOURCE_URL: ${DATABASE_URL}
+      SPRING_DATASOURCE_USERNAME: ${DATABASE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: 3600000
     ports:
       - "8080:8081"
+    networks:
+      - space-network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/actuator/health"]
       interval: 30s
@@ -742,65 +894,27 @@ services:
         reservations:
           cpus: '1'
           memory: 1G
+
+networks:
+  space-network:
+    external: true
 ```
 
-Execute com:
+### Executar em Produção
+
 ```bash
+# Definir variáveis de ambiente
+export DATABASE_URL=jdbc:postgresql://seu-host-producao:5432/education_spaces_db
+export DATABASE_USERNAME=seu_usuario
+export DATABASE_PASSWORD=sua_senha_segura
+export JWT_SECRET=sua_chave_secreta_muito_segura_com_pelo_menos_32_caracteres
+
+# Criar rede
+docker network create space-network
+
+# Iniciar aplicação
 docker-compose -f docker-compose.prod.yaml up -d
 ```
-
-### Melhores Práticas para Produção
-
-1. **Use tags de imagem específicas**, não `latest`
-2. **Defina limites de recursos** (CPU, memória)
-3. **Habilite health checks**
-4. **Use gerenciamento de secrets** para dados sensíveis
-5. **Habilite políticas de reinicialização**
-6. **Use bancos de dados gerenciados externos** (não contêineres)
-7. **Configure agregação de logs** (ELK, Splunk)
-8. **Monitore com Prometheus + Grafana**
-9. **Use proxy reverso** (Nginx, Traefik)
-10. **Habilite HTTPS/TLS**
-
----
-
-## Otimização do Tamanho da Imagem Docker
-
-Tamanho atual da imagem: ~300MB
-
-Para reduzir ainda mais o tamanho:
-
-```dockerfile
-# Use JRE ao invés de JDK
-FROM eclipse-temurin:21-jre-alpine
-
-# Ou use JRE customizado com jlink
-FROM eclipse-temurin:21-jdk-alpine AS jlink
-RUN jlink --add-modules java.base,java.logging,java.sql \
-    --output /custom-jre \
-    --compress=2 \
-    --no-header-files \
-    --no-man-pages
-
-FROM alpine:latest
-COPY --from=jlink /custom-jre /opt/jre
-COPY --from=build /app/target/*.jar app.jar
-ENTRYPOINT ["/opt/jre/bin/java", "-jar", "app.jar"]
-```
-
----
-
-## Resumo
-
-✅ **Início Rápido**: `docker-compose up -d`  
-✅ **Acessar App**: http://localhost:8081  
-✅ **Acessar Swagger**: http://localhost:8081/swagger-ui.html  
-✅ **Ver Métricas**: http://localhost:9090 (Prometheus)  
-✅ **Visualizar Dados**: http://localhost:3000 (Grafana)  
-✅ **Qualidade de Código**: http://localhost:9000 (SonarQube)  
-✅ **Parar Tudo**: `docker-compose down`
-
-Para mais detalhes, veja o arquivo [docker-compose.yaml](docker-compose.yaml).
 
 ## 📚 Documentação da API
 
