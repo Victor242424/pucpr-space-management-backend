@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
@@ -20,6 +18,22 @@ services:
       timeout: 5s
       retries: 5
 
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "8082:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - space-network
+
   sonarqube-db:
     image: postgres:15-alpine
     container_name: sonarqube-postgres
@@ -30,8 +44,9 @@ services:
       POSTGRES_DB: sonarqube
     volumes:
       - sonarqube_postgres_data:/var/lib/postgresql/data
+      - ./init-sonarqube-db.sh:/docker-entrypoint-initdb.d/init-sonarqube-db.sh
     networks:
-      - sonarqube-network
+      - space-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U sonar"]
       interval: 10s
@@ -57,7 +72,7 @@ services:
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_logs:/opt/sonarqube/logs
     networks:
-      - sonarqube-network
+      - space-network
     ulimits:
       nofile:
         soft: 65536
@@ -105,7 +120,7 @@ services:
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
     networks:
-      - monitoring-network
+      - space-network
     depends_on:
       - app
 
@@ -123,12 +138,13 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
-      - monitoring-network
+      - space-network
     depends_on:
       - prometheus
 
 volumes:
   postgres_data:
+  pgadmin_data:
   sonarqube_postgres_data:
   sonarqube_data:
   sonarqube_extensions:
