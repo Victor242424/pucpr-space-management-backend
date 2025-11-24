@@ -1,0 +1,26 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: space_management_app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/education_spaces_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      JWT_SECRET: mySecretKeyForEducationSpaceManagementSystemThatIsLongEnough
+      SPRING_PROFILES_ACTIVE: dev
+    ports:
+      - "8081:8081"
+    networks:
+      - space-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  space-network:
+    external: true
